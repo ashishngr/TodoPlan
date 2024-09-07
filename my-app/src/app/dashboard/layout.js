@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Link from "next/link";
 import { MdOutlineTask } from "react-icons/md";
 import { RiArchiveDrawerLine } from "react-icons/ri";
@@ -18,7 +18,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function Layout({ children }) {
+export default function Layout({ children }) { 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null; 
   const pathname = usePathname();
 
   console.log("Router", pathname);
