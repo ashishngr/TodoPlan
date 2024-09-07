@@ -1,5 +1,11 @@
 import React from 'react'; 
 import { HiArrowNarrowRight } from "react-icons/hi";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"; 
 
 const data = [{
     "S.No" : "1", 
@@ -20,7 +26,14 @@ const Task = () => {
         <span>ETA</span>
         <span>Created At</span>
         <span>Deadline</span>
-        <span className='bg-gray-50 p-3  shadow-md border rounded-full justify-center content-center cursor-pointer '><HiArrowNarrowRight /></span>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger>
+                    <div className='bg-gray-50 p-3  shadow-md border rounded-full justify-center content-center cursor-pointer '><HiArrowNarrowRight /></div>
+                </TooltipTrigger>
+                <TooltipContent>Taks Details</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     </div>
   )
 }
