@@ -26,7 +26,7 @@ AdminAuthHelper.validateToken = (req, res,  next) =>{
     }
     try {
        const verifyToken = jwt.verify(token, process.env.SECRET_KEY, {
-        issuer: 'yourAppName', // Validate issuer
+        issuer: 'TODOPLAN', // Validate issuer
         audience: 'yourAppAudience' // Validate audience
        }); 
         // Manually check for token expiration
@@ -36,6 +36,6 @@ AdminAuthHelper.validateToken = (req, res,  next) =>{
        req.user = verifyToken.user; 
        next();
     } catch (error) {
-        return res.status(401).send(ERRORS.INVALID_AUTH_TOKEN)
+        return res.status(401).send(ERRORS)
     }
 }
