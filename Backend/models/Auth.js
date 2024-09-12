@@ -46,7 +46,7 @@ const userSchema = new Schema(
     },
 }, 
 {
-    collection: "adminUser", 
+    collection: "user", 
     timestamps: {
         createdAt: "createdAt", 
         updatedAt: "updatedAt", 
@@ -72,7 +72,7 @@ userSchema.pre('save', async function(next){
 userSchema.methods.comparePassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
-const User = mongoose.model("UserSchema", userSchema)
+const User = mongoose.model("User", userSchema)
 module.exports = {
     User
 }

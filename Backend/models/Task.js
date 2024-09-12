@@ -45,16 +45,19 @@ const taskSchema = new Schema({
         type: String,
         trim: true,
     },
+    attachments: {
+        type: [String], // Array of URLs or file paths
+    }
 }, 
 {
-    collection: "adminUser", 
+    collection: "task", 
     timestamps: {
         createdAt: "createdAt", 
         updatedAt: "updatedAt", 
     }, 
 } 
 ); 
-const Task = mongoose.model("TaskSchema", taskSchema); 
+const Task = mongoose.model("Task", taskSchema); 
 module.exports = {
     Task
 }

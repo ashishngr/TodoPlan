@@ -7,5 +7,6 @@ const AdminAuthHelper = require("../helpers/AuthHelper")
 let validateToken = AdminAuthHelper.validateToken; 
 
 router.post("/task", validateToken, TaskController.createTask); 
+router.put("/task/:id", validateToken, TaskController.updateTask); 
 
 module.exports = router
