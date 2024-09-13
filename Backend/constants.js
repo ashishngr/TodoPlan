@@ -1,4 +1,4 @@
-exports.ERROR = {
+exports.ERRORS = {
     GENERIC_BAD_REQUEST: {
         status_code: 400, 
         message: "Invalid Request Or Query Data"

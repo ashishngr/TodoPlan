@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const {User} = require("../models/Auth"); 
 
-const {ERRORS} = require("../constants"); 
+const { ERRORS } = require("../constants"); 
 const ErrorUtils = require("../utils/errorUtils"); 
 const AdminAuthHelper = require("../helpers/AuthHelper"); 
 
@@ -12,7 +12,7 @@ AuthController.signUp = async(req, res) =>{
         const {firstName, lastName, email, password, purposeOfUse, contactNumber, dob, region} = req.body; 
         let user = await User.findOne({email: email}); 
         if(user){
-            return ErrorUtils.APIErrorResponse(res, ERRORS.USER_ALREADY_EXIST); 
+            return ErrorUtils.APIErrorResponse(res, ERRORS.USER_ALREADY_EXIST)
         }
         
         user = new User({
