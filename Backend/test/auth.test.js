@@ -48,49 +48,47 @@ describe('AuthController', ()=>{
             });
         })
     })
-    //TODO: Login  API Test
-    // describe('LOGIN /login', ()=>{
-    //     it('should login an existing user and return a token', (done)=>{
-    //         chai.request(server)
-    //         .post('/api/v1/login')
-    //         .send({
-    //             email: "johndoe@example.com",
-    //             password: "password123"
-    //         })
-    //         .end((err, res) => {
-    //             expect(res).to.have.status(200);
-    //             expect(res.body).to.have.property('token');
-    //             expect(res.body.message).to.equal("User Login Successfully");
-    //             done();
-    //         });
-    //     })
-    //     it('should return an error if email is not found', (done) => {
-    //         chai.request(server)
-    //           .post('/api/v1/login')
-    //           .send({
-    //             email: "nonexistent@example.com",
-    //             password: "password123"
-    //         })
-    //         .end((err, res) => {
-    //             expect(res).to.have.status(400);
-    //             expect(res.body).to.have.property('error');
-    //             expect(res.body.error).to.equal('No User Found'); 
-    //             done();
-    //         });
-    //     });
-    //     it('should return an error if the password is incorrect', ()=>{
-    //         chai.request(server)
-    //         .post('/api/v1/login')
-    //         .send({
-    //         email: "johndoe@example.com",
-    //         password: "wrongpassword"
-    //         })
-    //         .end((err, res) => {
-    //             expect(res).to.have.status(400);
-    //             expect(res.body).to.have.property('error');
-    //             expect(res.body.error).to.equal('Invalid credentials'); // Assuming this is the error message
-    //             done();
-    //         })
-    //     })
-    // })
+    // TODO: Login  API Test
+    describe('LOGIN /login', ()=>{
+        it('should login an existing user and return a token', (done)=>{
+            chai.request(server)
+            .post('/api/v1/login')
+            .send({
+                email: "johndoe@example.com",
+                password: "password123"
+            })
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.body).to.have.property('token');
+                expect(res.body.message).to.equal("User Login Successfully");
+                done();
+            });
+        })
+        it('should return an error if email is not found', (done) => {
+            chai.request(server)
+              .post('/api/v1/login')
+              .send({
+                email: "nonexistent@example.com",
+                password: "password123"
+            })
+            .end((err, res) => {
+                expect(res).to.have.status(404);
+                expect(res.body.message).to.equal('No User Found'); 
+                done();
+            });
+        });
+        it('should return an error if the password is incorrect', (done)=>{
+            chai.request(server)
+            .post('/api/v1/login')
+            .send({
+            email: "johndoe@example.com",
+            password: "wrongpassword"
+            })
+            .end((err, res) => {
+                expect(res).to.have.status(401);
+                expect(res.body.message).to.equal('User Credentials Invalid'); // Assuming this is the error message
+                done();
+            })
+        })
+    })
 })
