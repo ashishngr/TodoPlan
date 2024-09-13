@@ -8,5 +8,6 @@ let validateToken = AdminAuthHelper.validateToken;
 
 router.post("/task", validateToken, TaskController.createTask); 
 router.put("/task/:id", validateToken, TaskController.updateTask); 
+router.get("/task", validateToken, TaskController.getAllTasks)
 
 module.exports = router

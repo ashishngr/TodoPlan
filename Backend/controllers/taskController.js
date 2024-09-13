@@ -1,5 +1,8 @@
 const {User} = require("../models/Auth"); 
 const {Task} = require("../models/Task"); 
+var mongoose = require("mongoose"); 
+var ObjectId = mongoose.Types.ObjectId; 
+
 
 const {ERRORS} = require("../constants"); 
 const ErrorUtils = require("../utils/errorUtils");  
@@ -145,6 +148,74 @@ TaskController.updateTask = async(req, res) =>{
         message: 'Task updated successfully',
         task: updatedTask,
     });
+    } catch (error) {
+        console.log(error); 
+        return ErrorUtils.APIErrorResponse(res);
+    }
+}; 
+TaskController.getAllTasks = async(req, res) =>{
+    try {
+        const id = req.user.id; 
+        const email = req.user.email
+        console.log(id)
+        const user = await User.findById(id); 
+        if(!user){
+            return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
+        }; 
+        let {limit, page, taskId, priority,   status, sortBy, from, to} = req.query; 
+        page = page || 1; 
+        limit = limit || 5; 
+        let skip = (page - 1) * limit;  
+        let query = {creatorEmail : email}
+        if(taskId){
+            query._id = new ObjectId(taskId)
+        }
+        if(priority){
+            query.priority = priority
+        }
+        if(status){
+            query.status = status
+        }
+         // Handle date range for createdAt field
+        const fromDate = from ? new Date(from) : null;
+        const toDate = new Date(new Date(to).setHours(23, 59, 59, 999));
+        if(fromDate && toDate) {
+            query.createdAt = {
+                $gte: fromDate,
+                $lte: toDate
+            };
+        } else if (fromDate) {
+            query.createdAt = { $gte: fromDate };
+        } else if (toDate) {
+            query.createdAt = { $lte: toDate };
+        }
+        const sort = {createdAt: -1};
+        if (sortBy === 'latest') {
+            sort.createdAt = -1; // Sort by latest
+        } else if (sortBy === 'oldest') {
+            sort.createdAt = 1;  // Sort by oldest
+        }
+        let taskList = await Task.aggregate([
+            {
+                $match : query
+            },
+            {
+                $sort : sort
+            },
+            {
+                $skip: skip
+            }, 
+            {
+                $limit: parseInt(limit)
+            }
+        ])
+        const totalCount = await Task.countDocuments(query); 
+        const payload = {
+            data: taskList, 
+            totalTask: totalCount, 
+            currentPage: page 
+        }
+        return res.status(200).json(payload)
     } catch (error) {
         console.log(error); 
         return ErrorUtils.APIErrorResponse(res);
