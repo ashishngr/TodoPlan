@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -47,21 +47,28 @@ import {
 } from "@/components/ui/tooltip";
 
 import Task from "@/app/components/Task";
+import Filters from "@/app/components/Filters";
 import { TfiPlus } from "react-icons/tfi";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const page = () => {
   const [date, setDate] = useState(Date);
+ 
 
   return (
-    <div className="flex justify-center p-10">
+    <div className="flex flex-col justify-center p-10">
+       <div className="border border-2 rounded-lg p-4 shadow-md bg-white mb-5">
+            <div className="p-3">Filters</div>
+            <Filters filters={["SortBy, SearchById, SearchByPriority, searchByCreatedAt, SearchByStatus, SearchByDateRange"]}
+            />
+        </div>
       <Card className="w-full h-[70vh]">
         <CardHeader className="items-center">
           <CardTitle>Task List</CardTitle>
           <CardDescription>List Of Tasks Created By Your.</CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent> 
           <ScrollArea className="flex flex-col gap-2  h-[50vh]">
             <div className="flex flex-col gap-2 ">
               <Task />
