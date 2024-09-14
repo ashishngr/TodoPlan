@@ -221,4 +221,52 @@ TaskController.getAllTasks = async(req, res) =>{
         return ErrorUtils.APIErrorResponse(res);
     }
 }
+TaskController.getCompleteTask = async(req, res) =>{
+    try {
+        const id = req.user.id; 
+        const user = await User.findById(id); 
+        if(!user){
+            return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
+        }
+        let { limit, page, sortBy } = req.query; 
+         // Set default values for pagination if not provided
+        page = page || 1;
+        limit = limit || 5;
+        let skip = (page - 1) * limit; 
+        let query = {
+            creatorEmail: email,
+            status: 'completed'
+        };
+        const sort = { createdAt: -1 }; // Default sorting by latest
+        if (sortBy === 'latest') {
+            sort.createdAt = -1; // Sort by latest
+        } else if (sortBy === 'oldest') {
+            sort.createdAt = 1;  // Sort by oldest
+        }
+        let taskList = await Task.aggregate([
+            {
+                $match: query
+            },
+            {
+                $sort: sort
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: parseInt(limit)
+            }
+        ]);
+        const totalCount = await Task.countDocuments(query); 
+        const payload = {
+            data: taskList,
+            totalTask: totalCount,
+            currentPage: page
+        };
+        return res.status(200).json(payload);
+    } catch (error) {
+        console.log(error); 
+        return ErrorUtils.APIErrorResponse(res);
+    }
+}
 
