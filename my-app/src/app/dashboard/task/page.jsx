@@ -57,9 +57,8 @@ const page = () => {
 
   return (
     <div className="flex flex-col justify-center p-10">
-       <div className="border border-2 rounded-lg p-4 shadow-md bg-white mb-5">
-            <div className="p-3">Filters</div>
-            <Filters filters={["SortBy, SearchById, SearchByPriority, searchByCreatedAt, SearchByStatus, SearchByDateRange"]}
+       <div className="border-2 rounded-lg p-4 shadow-md bg-white mb-5">
+            <Filters filters={["SortBy", "SearchById", "SearchByPriority", "searchByCreatedAt", "SearchByStatus"]}
             />
         </div>
       <Card className="w-full h-[70vh]">
