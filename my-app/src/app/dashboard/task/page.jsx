@@ -49,14 +49,17 @@ import {
 import Task from "@/app/components/Task";
 import Filters from "@/app/components/Filters";
 import { TfiPlus } from "react-icons/tfi";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area"; 
+
+import RequireAuth from "@/app/common/RequireAuth";
 
 const page = () => {
   const [date, setDate] = useState(Date);
  
 
   return (
-    <div className="flex flex-col justify-center p-10">
+    <RequireAuth>
+       <div className="flex flex-col justify-center p-10">
        <div className="border-2 rounded-lg p-4 shadow-md bg-white mb-5">
             <Filters filters={["SortBy", "SearchById", "SearchByPriority", "searchByCreatedAt", "SearchByStatus"]}
             />
@@ -182,6 +185,8 @@ const page = () => {
       </AlertDialog>
       {/* </div> */}
     </div>
+    </RequireAuth>
+   
   );
 };
 
