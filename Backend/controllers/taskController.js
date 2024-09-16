@@ -162,7 +162,7 @@ TaskController.getAllTasks = async(req, res) =>{
         if(!user){
             return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
         }; 
-        let {limit, page, taskId, priority,   status, sortBy, from, to} = req.query; 
+        let {limit, page, taskId, priority,  status, sortBy, from, to} = req.query; 
         page = page || 1; 
         limit = limit || 5; 
         let skip = (page - 1) * limit;  

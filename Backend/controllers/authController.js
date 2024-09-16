@@ -45,6 +45,7 @@ AuthController.signUp = async(req, res) =>{
 AuthController.login = async(req, res) =>{
     try {
         const {email, password } = req.body; 
+        console.log("Req Body :", email)
         if(!email || !password){
             return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST); 
         }
