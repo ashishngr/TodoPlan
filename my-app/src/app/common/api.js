@@ -21,6 +21,10 @@ const API = {
     },
     signup : async (payload) => {
         return await axios.post(`${API_BASE_URL}/api/v1/signup`, payload)
+    }, 
+    createTask : async(payload) =>{
+        console.log("Payload"); 
+        return await axios.post(`${API_BASE_URL}/api/v1/task`, payload, getHeadersWithToken()); 
     }
 }
 export default API; 

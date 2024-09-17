@@ -52,10 +52,50 @@ import { TfiPlus } from "react-icons/tfi";
 import { ScrollArea } from "@/components/ui/scroll-area"; 
 
 import RequireAuth from "@/app/common/RequireAuth";
+import API from "@/app/common/api";
 
 const page = () => {
   const [date, setDate] = useState(Date);
- 
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('');
+  const [status, setStatus] = useState('');
+  const [etaType, setEtaType] = useState('');
+  const [eta, setEta] = useState(Number);
+  const [completedAt, setCompletedAt] = useState(null);
+  const [deadline, setDeadline] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async(e) =>{
+    console.log("------")
+    e.preventDefault();
+    setIsLoading(true); 
+    if (isNaN(eta) || eta <= 0) {
+      alert("Please enter a valid ETA value");
+      return;
+    }
+    try {
+      const formData = {
+        title, 
+        description, 
+        priority, 
+        status, 
+        ETA: eta, 
+        ETAUnit : etaType, 
+        deadline, 
+        description, 
+        completionDate: completedAt
+      }
+      const response = await API.createTask(formData); 
+      console.log("response", response)
+      if(response.status === 200){
+
+      }
+      console.log("response", response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <RequireAuth>
@@ -105,16 +145,17 @@ const page = () => {
             <AlertDialogTitle>Create A Task</AlertDialogTitle>
             <AlertDialogDescription>
               By filling the required information you can create a task
+              <form  onSubmit={handleSubmit}>
               <div className="flex flex-col mt-6">
                 <label htmlFor="title">Title:</label>
-                <Input id="title" />
+                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)}/>
               </div>
               <div className="flex flex-col">
                 <label htmlFor="description">Description</label>
-                <Textarea id="description" />
+                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)}/>
               </div>
               <div className="flex flex-row flex-wrap justify-between mt-3">
-                <Select className="w-30">
+                <Select className="w-30" value={priority} onValueChange={setPriority}>
                   <SelectTrigger className="w-[220px]">
                     <SelectValue placeholder="Select Priority" />
                   </SelectTrigger>
@@ -122,31 +163,82 @@ const page = () => {
                     <SelectGroup>
                       <SelectLabel>Priority</SelectLabel>
                       <SelectItem value="Urgent">Urgent</SelectItem>
-                      <SelectItem value="banana">Low</SelectItem>
-                      <SelectItem value="blueberry">Medium</SelectItem>
-                      <SelectItem value="grapes">High</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <Select className="w-1/2">
+                <Select className="w-1/2" value={status} onValueChange={setStatus} >
                   <SelectTrigger className="w-[220px]">
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Status</SelectLabel>
-                      <SelectItem value="apple">In-Progress</SelectItem>
-                      <SelectItem value="banana">Blocked</SelectItem>
-                      <SelectItem value="blueberry">Backlock</SelectItem>
-                      <SelectItem value="grapes">Done</SelectItem>
+                      <SelectItem value="in-progress">In-Progress</SelectItem>
+                      <SelectItem value="blocked">Blocked</SelectItem>
+                      <SelectItem value="backlog">Backlock</SelectItem>
+                      <SelectItem value="completed">Done</SelectItem>
+                      <SelectItem value="on-hold">On Hold</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex flex-col mt-6">
+                <label htmlFor="attachment">Attachment:</label>
+                <Input id="attachment" />
+              </div>
+              <div className="flex flex-row justify-between gap-4">
+                <div className="flex flex-col gap-2 flex-grow">
+                  <lable htmlFor="eta">Select ETA Unit</lable>
+                <Select className="w-30" value={etaType} onValueChange={setEtaType}>
+                  <SelectTrigger className="w-[220px]">
+                    <SelectValue placeholder="Select ETA Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>ETA </SelectLabel>
+                      <SelectItem value="minutes">Minutes</SelectItem>
+                      <SelectItem value="hours">Hours</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                 
+                </div>
+                <div className="flex flex-col gap-2 flex-grow">
+                  <label htmlFor="eta">ETA</label>
+                  <Input id="eta" type="number" placeholder="" required value={eta} onChange={(e) => setEta(e.target.value)}  
+                  />
+                </div>
+              </div>
+
               <div className="flex flex-row flex-wrap gap-2 mt-6">
                 <div className="flex flex-col ">
-                  <label htmlFor="eta">ETA: In minutes</label>
-                  <Input id="eta" />
+                  <label htmlFor="eta">Completed At</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {completedAt ? format(completedAt, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={completedAt} 
+                        onSelect={setCompletedAt}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="flex flex-col flex-wrap ">
@@ -161,25 +253,31 @@ const page = () => {
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                        {deadline ? format(deadline, "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
-                        selected={date}
-                        onSelect={setDate}
+                        selected={deadline}
+                        onSelect={setDeadline}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
+              </div> 
+              <div className="flex flex-row justify-center mt-6">
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? "Submitting..." : "Submit"}
+                    </Button>
               </div>
+              </form>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Submit</AlertDialogAction>
+            {/* <AlertDialogAction type="submit" disabled={isLoading} >Submit</AlertDialogAction> */}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
