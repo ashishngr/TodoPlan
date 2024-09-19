@@ -50,9 +50,11 @@ import Task from "@/app/components/Task";
 import Filters from "@/app/components/Filters";
 import { TfiPlus } from "react-icons/tfi";
 import { ScrollArea } from "@/components/ui/scroll-area"; 
+import { GrClose } from "react-icons/gr";
 
 import RequireAuth from "@/app/common/RequireAuth";
 import API from "@/app/common/api";
+
 
 const page = () => {
   const [date, setDate] = useState(Date);
@@ -65,6 +67,22 @@ const page = () => {
   const [completedAt, setCompletedAt] = useState(null);
   const [deadline, setDeadline] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+   // Reset fields to initial state
+   const resetFields = () => {
+    setTitle("");
+    setDescription("");
+    setPriority("");
+    setStatus("");
+    setEta("");
+    setEtaType("");
+    setCompletedAt(null);
+    setDeadline(null);
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
 
   const handleSubmit = async(e) =>{
     console.log("------")
@@ -89,11 +107,17 @@ const page = () => {
       const response = await API.createTask(formData); 
       console.log("response", response)
       if(response.status === 200){
-
+        setSuccessMessage("Task created successfully");
+        resetFields()
       }
       console.log("response", response)
     } catch (error) {
       console.log(error)
+      setErrorMessage("Failed to create task. Please try again.");
+      resetFields(); // Reset fields even on failure
+    }
+    finally{
+      setIsLoading(false);
     }
   }
 
@@ -142,9 +166,19 @@ const page = () => {
         </AlertDialogTrigger>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Create A Task</AlertDialogTitle>
-            <AlertDialogDescription>
+
+            <div className="flex justify-end">
+            <AlertDialogCancel><GrClose /></AlertDialogCancel>
+            </div>
+              <div className="flex flex-col items-center justify-center">
+              <AlertDialogTitle>Create A Task</AlertDialogTitle>  
+              <AlertDialogDescription>
               By filling the required information you can create a task
+              </AlertDialogDescription>
+              </div>
+           
+           
+            
               <form  onSubmit={handleSubmit}>
               <div className="flex flex-col mt-6">
                 <label htmlFor="title">Title:</label>
@@ -267,16 +301,17 @@ const page = () => {
                   </Popover>
                 </div>
               </div> 
-              <div className="flex flex-row justify-center mt-6">
+              <div className="flex flex-col justify-center mt-2 gap-2">
                     <Button type="submit" disabled={isLoading}>
                       {isLoading ? "Submitting..." : "Submit"}
                     </Button>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
               </div>
               </form>
-            </AlertDialogDescription>
+            
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            {/* <AlertDialogCancel>Cancel</AlertDialogCancel> */}
             {/* <AlertDialogAction type="submit" disabled={isLoading} >Submit</AlertDialogAction> */}
           </AlertDialogFooter>
         </AlertDialogContent>
