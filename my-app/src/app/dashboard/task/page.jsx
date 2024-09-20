@@ -1,146 +1,139 @@
 "use client";
-import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
-import Task from "@/app/components/Task";
-import Filters from "@/app/components/Filters";
-import { TfiPlus } from "react-icons/tfi";
-import TaskStatusCard from "@/app/components/TaskStatusCard";
-import { ScrollArea } from "@/components/ui/scroll-area"; 
-import { GrClose } from "react-icons/gr";
-import { IoMdAdd } from "react-icons/io";
-
-import Typography from '@mui/material/Typography';
+import React, { useState, useEffect, useRef } from "react";
 import TaskCard from "@/app/components/TaskCard";
-
+import { IoAdd } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import RequireAuth from "@/app/common/RequireAuth";
 import API from "@/app/common/api";
 import Header from "@/app/components/Header";
 
-
 const page = () => {
-  const [date, setDate] = useState(Date);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('');
-  const [status, setStatus] = useState('');
-  const [etaType, setEtaType] = useState('');
-  const [eta, setEta] = useState(Number);
-  const [completedAt, setCompletedAt] = useState(null);
-  const [deadline, setDeadline] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState([]);
+  const availableFilters = [
+    "Priority",
+    "Status",
+    "CreatedAt",
+    "Assignee",
+    "DueDate",
+  ];
+  const dropdownRef = useRef(null);
 
-   // Reset fields to initial state
-   const resetFields = () => {
-    setTitle("");
-    setDescription("");
-    setPriority("");
-    setStatus("");
-    setEta("");
-    setEtaType("");
-    setCompletedAt(null);
-    setDeadline(null);
-    setErrorMessage("");
-    setSuccessMessage("");
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
   };
 
-  const handleSubmit = async(e) =>{
-    console.log("------")
-    e.preventDefault();
-    setIsLoading(true); 
-    if (isNaN(eta) || eta <= 0) {
-      alert("Please enter a valid ETA value");
-      return;
+  const handleFilterSelect = (filter) => {
+    // Toggle filter selection
+    if (selectedFilters.includes(filter)) {
+      setSelectedFilters(selectedFilters.filter((f) => f !== filter));
+    } else {
+      setSelectedFilters([...selectedFilters, filter]);
     }
-    try {
-      const formData = {
-        title, 
-        description, 
-        priority, 
-        status, 
-        ETA: eta, 
-        ETAUnit : etaType, 
-        deadline, 
-        description, 
-        completionDate: completedAt
+  };
+
+  const handleRemoveChip = (filter) => {
+    setSelectedFilters(selectedFilters.filter((f) => f !== filter));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
       }
-      const response = await API.createTask(formData); 
-      console.log("response", response)
-      if(response.status === 200){
-        setSuccessMessage("Task created successfully");
-        resetFields()
-      }
-      console.log("response", response)
-    } catch (error) {
-      console.log(error)
-      setErrorMessage("Failed to create task. Please try again.");
-      resetFields(); // Reset fields even on failure
-    }
-    finally{
-      setIsLoading(false);
-    }
-  }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <RequireAuth>
-    <div className="flex flex-col justify-center">
-      {/* Top Header */}
-      <Header />
-      {/* Header */}
-       <Typography variant="h6">Notionize</Typography>
-       <Typography variant="p">Streamline your tasks, elevate your notes.</Typography>
-
-       {/* Task Section */}
-       <TaskCard />
-    </div>
+      <div className="flex flex-col justify-center">
+        {/* Top Header */}
+        <Header />
+        {/* Header 2*/}
+        <div className="flex flex-row justify-between p-4">
+          {/* Filters */}
+          <div 
+          className="relative">
+            <Button onClick={toggleDropdown}>
+              {" "}
+              Add Filters{" "}
+              <span className="ml-2">
+                {" "}
+                <IoAdd size={22} />{" "}
+              </span>{" "}
+            </Button>
+          </div>
+          {/* Dropdown */}
+          {isOpen && (
+            <div 
+            ref={dropdownRef}
+            className="absolute z-10 mt-9 bg-white shadow-md border border-gray-300  rounded-md">
+              {availableFilters.map((filter) => (
+                <div
+                  key={filter}
+                  className="flex items-center space-x-2 p-5 hover:bg-gray-100 "
+                >
+                  <input
+                    type="checkbox"
+                    id={filter}
+                    checked={selectedFilters.includes(filter)}
+                    onChange={() => handleFilterSelect(filter)}
+                    className="w-4 h-4 text-black bg-gray-500 border-gray-300 rounded focus:ring-gray-500 cursor-pointer"
+                  />
+                  <label
+                    htmlFor={filter}
+                    className="text-sm font-medium leading-none"
+                  >
+                    {filter}
+                  </label>
+                </div>
+              ))}
+              <div className="p-2 text-center border-t border-gray-300">
+              <Button onClick={() => setSelectedFilters([])} className="text-white shadow-lg" >
+                Clear Filters
+              </Button>
+            </div>
+            </div>
+          )}
+          {/* Box displaying selected filters as chips */}
+          <div 
+          className="mt-4 flex flex-wrap gap-2">
+            {selectedFilters.map((filter) => (
+              <div
+                key={filter}
+                className="flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+              >
+                <span>{filter}</span>
+                <button
+                  onClick={() => handleRemoveChip(filter)}
+                  className="ml-2 text-gray-600 hover:text-gray-900"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+          {/* Search  */}
+          <div className="flex w-full max-w-sm items-center space-x-2">
+            <Input
+              type="text"
+              placeholder="Search any task by entering there title"
+            />
+            <Button type="submit">Search</Button>
+          </div>
+        </div>
+        {/* Task Section */}
+        <TaskCard />
+      </div>
     </RequireAuth>
-   
   );
 };
 
