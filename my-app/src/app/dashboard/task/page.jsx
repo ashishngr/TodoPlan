@@ -14,7 +14,7 @@ const page = () => {
   const availableFilters = [
     "Priority",
     "Status",
-    "CreatedAt",
+    "SortBy",
     "Assignee",
     "DueDate",
   ];
@@ -55,8 +55,10 @@ const page = () => {
   return (
     <RequireAuth>
       <div className="flex flex-col justify-center">
-        {/* Top Header */}
-        <Header />
+        {/* Headers */}
+        <div className="sticky top-0 z-40 bg-white shadow-md">
+          {/* Top Header */}
+        <Header className=" bg-white shadow-md"/>
         {/* Header 2*/}
         <div className="flex flex-row justify-between p-4 border-b border-gray-300">
           {/* Filters */}
@@ -130,6 +132,8 @@ const page = () => {
             <Button type="submit">Search</Button>
           </div>
         </div>
+        </div>
+        
         {/* Add Crad Button */}
         <div className="flex justify-center mt-2">
           <Button className="font-bold text-xl">Add Task {" "}<span className="ml-2">
@@ -138,7 +142,24 @@ const page = () => {
               </span>{" "} </Button>
         </div>
         {/* Task Sections */}
-        <TaskCard />
+        <div className="flex flex-row justify-center gap-4 p-10 flex-wrap">
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+           <TaskCard />
+        </div>
+       
       </div>
     </RequireAuth>
   );
