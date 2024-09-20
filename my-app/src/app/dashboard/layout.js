@@ -148,7 +148,7 @@ export default function Layout({ children }) {
         </nav>
       </TooltipProvider>
       {/* Main Content */}
-      <main className="flex-1 p-6 bg-gray-100 overflow-auto">{children}</main>
+      <main className="flex-1  bg-white overflow-auto">{children}</main>
     </div>
   );
 }
