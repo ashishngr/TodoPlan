@@ -58,11 +58,11 @@ const page = () => {
         {/* Top Header */}
         <Header />
         {/* Header 2*/}
-        <div className="flex flex-row justify-between p-4">
+        <div className="flex flex-row justify-between p-4 border-b border-gray-300">
           {/* Filters */}
           <div 
           className="relative">
-            <Button onClick={toggleDropdown}>
+            <Button onClick={toggleDropdown} className="bg-gray-500">
               {" "}
               Add Filters{" "}
               <span className="ml-2">
@@ -130,7 +130,14 @@ const page = () => {
             <Button type="submit">Search</Button>
           </div>
         </div>
-        {/* Task Section */}
+        {/* Add Crad Button */}
+        <div className="flex justify-center mt-2">
+          <Button className="font-bold text-xl">Add Task {" "}<span className="ml-2">
+                {" "}
+                <IoAdd size={30} />{" "}
+              </span>{" "} </Button>
+        </div>
+        {/* Task Sections */}
         <TaskCard />
       </div>
     </RequireAuth>
