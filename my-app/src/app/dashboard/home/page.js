@@ -11,8 +11,8 @@ import {
 import { RocketIcon } from "@radix-ui/react-icons"
 import InfoCard from '@/app/components/InfoCard';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-
-
+import TableCards from '@/app/components/TableCards';
+import NotesTableCard from '@/app/components/NotesTableCard';
 
 
 const page = () => {
@@ -47,6 +47,22 @@ const page = () => {
             <button className='bg-gray-300 text-black text-2xl font-extrabold p-4 rounded-md shadow-md cursor-pointer'><span><AddOutlinedIcon /></span>{" "}Add Task </button>
             <button className='bg-gray-300 text-black text-2xl font-extrabold p-4 rounded-md shadow-md cursor-pointer'><span><AddOutlinedIcon /></span>{" "}Add Notes</button>
         </div>
+    </div>
+    {/* Tables */}
+    <div className='flex flex-row gap-6 mt-3 flex-wrap '>
+        <TableCards 
+        title={"Todays Tasks"}
+        number={"4"}
+        description={" A list of your today's tasks."}/>
+        <TableCards 
+        title={"In-Progress Tasks"}
+        number={"9"}
+        description={" A list of your inprogress tasks."}
+        />
+        <NotesTableCard 
+        title={"Latest Notes"}
+        number={"9"}
+        />
     </div>
     </div>
    </RequireAuth>
