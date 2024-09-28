@@ -12,6 +12,13 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { validateEmail } from '@/utility/validateEmail';
+import { validatePassword } from '@/utility/validatePassword';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 const page = () => {
   const [date, setDate] = useState(null);
@@ -24,13 +31,24 @@ const page = () => {
   const [contact, setContact] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+
   const router = useRouter(); 
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-
-    console.log("we are here inside function --"); // Debugging log
     setIsLoading(true);
+    // Validate email and password
+    if (!validateEmail(email)) {
+        console.log("Wrong Email")
+      setIsLoading(false);
+      return;
+    }
+    if (!validatePassword(password)) {
+      console.log("weak Password")
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const formData = {
         firstName,
@@ -104,13 +122,30 @@ const page = () => {
               </div>
 
               {/* Password Input */}
-              <div className="flex flex-col gap-2">
+              <HoverCard>
+              <HoverCardTrigger asChild>
+                  <div className="flex flex-col gap-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+              <div className="p-4">
+                <h2 className="text-lg font-semibold mb-2">Tips for a Strong Password:</h2>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li className="text-gray-700">Use at least 8 characters.</li>
+                  <li className="text-gray-700">Include both uppercase and lowercase letters.</li>
+                  <li className="text-gray-700">Add at least one number.</li>
+                  <li className="text-gray-700">Incorporate special characters (e.g., @, #, $, %).</li>
+                  <li className="text-gray-700">Avoid using easily guessable information (e.g., names, birthdays).</li>
+                </ul>
+              </div>
+              </HoverCardContent>
+              </HoverCard>
+            
 
               {/* Purpose of use and Region */}
               <div className="flex flex-row justify-between gap-4">
