@@ -6,13 +6,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"; 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"; 
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; 
 import API from '../common/api';
 import { useRouter } from 'next/navigation';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const page = () => {
   const [date, setDate] = useState(null);
@@ -148,32 +147,17 @@ const page = () => {
                   onChange={(e) => setContact(e.target.value)}
                 />
               </div>
-
               {/* DOB */}
               <div className="flex flex-col gap-2">
-                <Label htmlFor="dob">Date Of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+              <Label htmlFor="dob">Date Of Birth</Label>
+              <LocalizationProvider dateAdapter={AdapterDayjs} >
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker sx={{ width: '100%' }} 
+                  value={date} 
+                  onChange={(newValue) => setDate(newValue)}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
               </div>
 
               {/* Create Account Button */}
