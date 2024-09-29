@@ -1,6 +1,7 @@
 const { User } = require("../models/Auth");
 const { ERRORS } = require("../constants");
 const ErrorUtils = require("../utils/errorUtils");
+const bcrypt = require('bcrypt');
 
 
 const ProfileController = module.exports;
@@ -21,6 +22,7 @@ ProfileController.getUserBasicInfomation = async (req, res) => {
     res.status(200).json( {basicDetails} );
   } catch (error) {
     console.log(error);
+    return ErrorUtils.APIErrorResponse(res)
   }
 };
 ProfileController.updateBasicInformation = async(req, res) =>{
@@ -56,8 +58,34 @@ ProfileController.updateBasicInformation = async(req, res) =>{
         dob: user.dob,
       },
     });
-    
+
   } catch (error) {
-    console.log(error)
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res)
+  }
+}
+ProfileController.updatePassword = async(req, res) =>{
+  try {
+    const {currentPassword , newPassword} = req.body; 
+    const userId = req.user.id; 
+    if(!currentPassword && !newPassword){
+        return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
+    }
+    const user = await User.findById(userId); 
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+    const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+    if(!isPasswordMatch){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INCORRECT_PASSWORD)
+    }
+    user.password = newPassword; 
+    await user.save(); 
+    return res.status(200).json({
+      message: 'Password updated successfully!',
+    })
+  } catch (error) {
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res)
   }
 }

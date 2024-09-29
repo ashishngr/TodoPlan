@@ -18,5 +18,9 @@ exports.ERRORS = {
     NO_TASK_FOUND : {
         status_code: 404, 
         message: "No Task Found"
+    }, 
+    INCORRECT_PASSWORD : {
+        status_code : 400, 
+        message : "Incorrect password"
     }
 }

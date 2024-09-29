@@ -9,7 +9,6 @@ AdminAuthHelper.createJWTToken = (payload) => {
             payload, 
             process.env.SECRET_KEY, 
             {
-                  expiresIn: '5h', 
                    issuer: 'TODOPLAN',
                 audience: 'yourAppAudience'
             }
