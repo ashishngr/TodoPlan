@@ -23,3 +23,41 @@ ProfileController.getUserBasicInfomation = async (req, res) => {
     console.log(error);
   }
 };
+ProfileController.updateBasicInformation = async(req, res) =>{
+  try {
+    const { firstName, lastName, email, contactNumber, region, dob } = req.body;
+    if (!firstName || !lastName || !email || !contactNumber || !dob) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
+    }
+    const userId = req.user.id; 
+    const user = await User.findById(userId); 
+    if(!user){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
+    }
+    //Update user
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.email = email;
+    user.contactNumber = contactNumber || user.contactNumber;  // Update if provided
+    user.region = region || user.region;  // Update if provided
+    user.dob = dob || user.dob;  // Update if provided
+    // Save the updated user profile
+    await user.save();
+
+    // Respond with the updated user profile
+    return res.status(200).json({
+      message: "User information updated successfully.",
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        contactNumber: user.contactNumber,
+        region: user.region,
+        dob: user.dob,
+      },
+    });
+    
+  } catch (error) {
+    console.log(error)
+  }
+}
