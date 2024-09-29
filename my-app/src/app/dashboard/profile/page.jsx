@@ -68,15 +68,16 @@ export default function Profile() {
     dob: dayjs(),
   });
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [successMsg, setSuccessMsg] = useState(null);
+
   
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await API.getUserProfile(); // Fetch the user's profile
-        console.log(response.data.basicDetails);
         const fetchedData = response.data.basicDetails;
         // Convert dob to dayjs object
         setProfile({
@@ -85,7 +86,6 @@ export default function Profile() {
         });
         setLoading(false);
       } catch (error) {
-        setErr("Failed to fetch profile data.");
         setLoading(false);
       }
     };
@@ -110,19 +110,41 @@ export default function Profile() {
   };
   const handleProfileUpdate = async () =>{
     try {
-      setSuccessMsg(null);  // Clear previous success message
+      setSuccessMsg(null);
       const response = await API.updateUserProfile(profile);  
-      console.log("response------", response.data.message)
-      setSuccessMsg(response.data.message);  
+      setSuccessMsg(response.data.message);
     } catch (error) {
-      
+      console.log(error)
+      setSuccessMsg("Failed to update profile.");
+
     }
   }
+  const handleCurrentPasswordChange = (e) => {
+    setCurrentPassword(e.target.value);
+  };
+  
+  const handleNewPasswordChange = (e) => {
+    setNewPassword(e.target.value);
+  };
+  const handlePasswordUpdate = async () => {
+    try {
+      setSuccessMsg(null);
+      const response = await API.updatePassword({
+        currentPassword,
+        newPassword,
+      });
+      setSuccessMsg(response.data.message);
+    } catch (error) {
+      console.error("Failed to update password:", error);
+      setSuccessMsg("Failed to update password.");
+    }
+  };
+  const handleSnackbarClose = () => {
+    setSuccessMsg(null);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
-  }
-  if (err) {
-    return <div>{err}</div>;
   }
 
   return (
@@ -218,20 +240,30 @@ export default function Profile() {
                   type="password"
                   placeholder="Old Password"
                   className="max-w-[600px]"
+                  value={currentPassword}
+                  onChange={handleCurrentPasswordChange}
                 />
                 <PasswordInput
                   type="password"
                   placeholder="New Password"
-                  // className="max-w-[600px]"
+                  className="max-w-[600px]"
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
                 />
               </form>
-              <div className="flex justify-center items-center ">
+              <div className="flex justify-center items-center " onClick={handlePasswordUpdate}>
                 <span className="text-lg text-white bg-black p-2 rounded-lg cursor-pointer mt-4 transition-transform duration-300 hover:scale-110">
                   UPDATE PASSWORD
                 </span>
               </div>
             </div>
           </div>
+          <Snackbar
+            open={!!successMsg}
+            autoHideDuration={4000}
+            onClose={handleSnackbarClose}
+            message={successMsg}
+          />
           {/* Invitees */}
           <Separator />
           <AlertDialog>

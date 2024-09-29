@@ -32,6 +32,9 @@ const API = {
     updateUserProfile : async(payload) =>{
         console.log(payload); 
         return await axios.post(`${API_BASE_URL}/api/v1/basicDetails`, payload, getHeadersWithToken()); 
+    }, 
+    updatePassword : async(payload) =>{
+        return await axios.post(`${API_BASE_URL}/api/v1/updatePassowrd`, payload, getHeadersWithToken())
     }
 }
 export default API; 
