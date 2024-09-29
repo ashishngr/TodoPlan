@@ -25,6 +25,9 @@ const API = {
     createTask : async(payload) =>{
         console.log("Payload"); 
         return await axios.post(`${API_BASE_URL}/api/v1/task`, payload, getHeadersWithToken()); 
+    }, 
+    getUserProfile : async() =>{
+        return await axios.get(`${API_BASE_URL}/api/v1/basicDetails`, getHeadersWithToken());
     }
 }
 export default API; 

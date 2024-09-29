@@ -44,7 +44,7 @@ const page = () => {
                   title: "Login successful!",
                   description: "Redirecting to dashboard...",
                 });
-                router.push("/dashboard/task"); // Redirect to dashboard
+                router.push("/dashboard/home"); // Redirect to dashboard
               } else {
                 throw new Error("Invalid login credentials");
               }
