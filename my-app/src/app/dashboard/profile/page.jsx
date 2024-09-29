@@ -25,10 +25,19 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs"; 
+import dayjs from "dayjs";
 import PasswordInput from "@/app/components/PasswordInput";
 import { Snackbar } from "@mui/material";
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MdDeleteOutline } from "react-icons/md";
+import { LuSendHorizonal } from "react-icons/lu";
 
 import API from "@/app/common/api";
 
@@ -72,8 +81,6 @@ export default function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [successMsg, setSuccessMsg] = useState(null);
 
-  
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -108,21 +115,20 @@ export default function Profile() {
   const handleRemove = (email) => {
     setInvitees(invitees.filter((invitee) => invitee.email !== email));
   };
-  const handleProfileUpdate = async () =>{
+  const handleProfileUpdate = async () => {
     try {
       setSuccessMsg(null);
-      const response = await API.updateUserProfile(profile);  
+      const response = await API.updateUserProfile(profile);
       setSuccessMsg(response.data.message);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setSuccessMsg("Failed to update profile.");
-
     }
-  }
+  };
   const handleCurrentPasswordChange = (e) => {
     setCurrentPassword(e.target.value);
   };
-  
+
   const handleNewPasswordChange = (e) => {
     setNewPassword(e.target.value);
   };
@@ -206,21 +212,23 @@ export default function Profile() {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DemoContainer components={["DatePicker"]}>
                     <DatePicker
-                     sx={{
-                      width: "200px",
-                      "& .MuiInputBase-input": {
-                        height: "7px", // Adjust height
-                        fontSize: "14px", // Adjust font size
-                      },
-                    }}
-
+                      sx={{
+                        width: "200px",
+                        "& .MuiInputBase-input": {
+                          height: "7px", // Adjust height
+                          fontSize: "14px", // Adjust font size
+                        },
+                      }}
                       value={profile.dob}
                       onChange={handleDobChange}
                     />
                   </DemoContainer>
                 </LocalizationProvider>
               </form>
-              <div className="flex justify-center items-center " onClick={handleProfileUpdate}>
+              <div
+                className="flex justify-center items-center "
+                onClick={handleProfileUpdate}
+              >
                 <span className="text-lg text-white bg-black p-2 rounded-lg cursor-pointer mt-4 transition-transform duration-300 hover:scale-110">
                   UPDATE DETAILS
                 </span>
@@ -251,7 +259,10 @@ export default function Profile() {
                   onChange={handleNewPasswordChange}
                 />
               </form>
-              <div className="flex justify-center items-center " onClick={handlePasswordUpdate}>
+              <div
+                className="flex justify-center items-center "
+                onClick={handlePasswordUpdate}
+              >
                 <span className="text-lg text-white bg-black p-2 rounded-lg cursor-pointer mt-4 transition-transform duration-300 hover:scale-110">
                   UPDATE PASSWORD
                 </span>
@@ -268,8 +279,8 @@ export default function Profile() {
           <Separator />
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <div className="flex justify-center p-4">
-                <Button className="p-4 text-lg">ADD INVITEES</Button>
+              <div className="flex justify-end p-2">
+                <Button className="p-2 text-sm">ADD INVITEES</Button>
               </div>
             </AlertDialogTrigger>
             <AlertDialogContent className="bg-white">
@@ -298,40 +309,83 @@ export default function Profile() {
           </AlertDialog>
         </div>
         {/* Invitees  Section */}
-        <div className="flex flex-wrap p-4 gap-2">
-          {invitees.length > 0 ? (
-            <div className="flex flex-wrap space-x-2">
-              {invitees.map((invitee, index) => (
-                <div
-                  key={index}
-                  className="flex items-center bg-gray-200 p-2 rounded-full space-x-2"
-                >
-                  {/* Avatar with the first letter of the name */}
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-400 text-white font-bold">
-                    {invitee.name.charAt(0)}
-                  </div>
-                  {/* Full name */}
-                  <span className="text-gray-800">{invitee.name}</span>
-                  {/* Circular Remove Button with Larger Cross */}
-                  <button
-                    onClick={() => handleRemove(invitee.email)}
-                    className="ml-2 w-8 h-8 bg-black text-white rounded-full transition-transform duration-300 hover:scale-110 text-2xl"
+        <div className="flex flex-row justify-between p-4 gap-6">
+          <Card className="max-w-[50%] p-2">
+            <CardHeader>
+              <CardTitle>Your Invitees</CardTitle>
+            </CardHeader>
+            {invitees.length > 0 ? (
+              <div className="flex flex-row flex-wrap space-x-2 gap-2">
+                {invitees.map((invitee, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center bg-gray-200 p-2 rounded-full space-x-2"
                   >
-                    &times;
+                    {/* Avatar with the first letter of the name */}
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-400 text-white font-bold">
+                      {invitee.name.charAt(0)}
+                    </div>
+                    {/* Full name */}
+                    <span className="text-gray-800">{invitee.name}</span>
+                    {/* Circular Remove Button with Larger Cross */}
+                    <button
+                      onClick={() => handleRemove(invitee.email)}
+                      className="ml-2 w-8 h-8 bg-black text-white rounded-full transition-transform duration-300 hover:scale-110 text-2xl"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center text-gray-500 text-2xl">
+                <Alert className=" p-4 rounded-lg shadow-md">
+                  <RocketIcon className="h-8 w-8 text-blue-500" />
+                  <AlertDescription className="text-md text-gray-700 mt-2 ml-4">
+                    You haven't added any invitees yet. Start inviting now!
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+          </Card>
+          <div className="w-[50%]">
+            <Card className="w-full p-2">
+              <CardHeader>
+                <CardTitle>Invitations in progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-row justify-between items-center  bg-gray-50 p-2 rounded-lg">
+                  {/* Avatar */}
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-400 text-white font-bold">
+                    {/* {invitee.name.charAt(0)} */} A
+                  </div>
+
+                  {/* Invitee Name */}
+                  <span className="text-gray-800 font-medium">
+                    {/* {invitee.name} */} Ashish Nagar
+                  </span>
+
+                  {/* Status */}
+                  <span className={`text-sm font-semibold text-yellow-600`}>
+                    {/* {invitee.status === 'accepted' ? 'Accepted' : 'Pending'} */}{" "}
+                    Pending
+                  </span>
+
+                  {/* Delete Button */}
+                  <button className="text-red-500 hover:text-red-700">
+                      <MdDeleteOutline size={22}/>
+                  </button>
+
+                  {/* Send Again Button */}
+                  <button className="text-blue-500 hover:text-blue-700">
+                  <LuSendHorizonal size={22}/>
+
                   </button>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center text-gray-500 text-2xl">
-              <Alert className=" p-4 rounded-lg shadow-md">
-                <RocketIcon className="h-8 w-8 text-blue-500" />
-                <AlertDescription className="text-md text-gray-700 mt-2 ml-4">
-                  You haven't added any invitees yet. Start inviting now!
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
+                <Separator />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </RequireAuth>
