@@ -16,7 +16,9 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 
 import API from "../common/api"; 
+import PasswordInput from "../components/PasswordInput";
 const StorageUtils = require("../common/storageUtils"); 
+
 
 const page = () => {
     const [email, setEmail] = useState(""); 
@@ -90,13 +92,18 @@ const page = () => {
             {/* Password Input */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
+              {/* <Input 
                 id="password" 
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-              />
+              /> */}
+               <PasswordInput 
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In"}

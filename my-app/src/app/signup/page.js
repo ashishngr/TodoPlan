@@ -18,7 +18,8 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card"
+} from "@/components/ui/hover-card"; 
+import PasswordInput from '../components/PasswordInput';
 
 const page = () => {
   const [date, setDate] = useState(null);
@@ -126,10 +127,16 @@ const page = () => {
               <HoverCardTrigger asChild>
                   <div className="flex flex-col gap-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required
+                <PasswordInput 
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                
+                {/* <Input id="password" type="password" required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                /> */}
               </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80">

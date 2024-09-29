@@ -26,6 +26,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs"; 
+import PasswordInput from "@/app/components/PasswordInput";
 
 import API from "@/app/common/api";
 
@@ -193,16 +194,16 @@ export default function Profile() {
                 </span>
               </div>
 
-              <form className="flex flex-row flex-wrap gap-3 ">
-                <Input
+              <form className="flex flex-row flex-wrap justify-center gap-3 ">
+                <PasswordInput
                   type="password"
                   placeholder="Old Password"
                   className="max-w-[600px]"
                 />
-                <Input
+                <PasswordInput
                   type="password"
                   placeholder="New Password"
-                  className="max-w-[600px]"
+                  // className="max-w-[600px]"
                 />
               </form>
               <div className="flex justify-center items-center ">
