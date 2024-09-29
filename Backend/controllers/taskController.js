@@ -15,15 +15,15 @@ TaskController.createTask = async(req, res) =>{
         const id = req.user.id; 
         const email = req.user.email; 
         const {
-            title,
-            priority,
-            status,
-            ETA,
-            ETAUnit,
-            deadline,
-            description,
+            title, //
+            priority, //
+            status, //
+            ETA, //
+            ETAUnit, //
+            deadline, //
+            description, //
             comment,
-            completionDate,
+            completionDate, 
             tags,
             attachments
         } = req.body; 
@@ -43,9 +43,9 @@ TaskController.createTask = async(req, res) =>{
             return res.status(400).json({ message: 'Invalid status value' });
         }
     
-        if (ETA !== undefined && (typeof ETA !== 'number' || ETA < 0)) {
-            return res.status(400).json({ message: 'Invalid ETA value. It must be a non-negative number representing duration in minutes.' });
-        }
+        // if (ETA !== undefined && (typeof ETA !== 'number' || ETA < 0)) {
+        //     return res.status(400).json({ message: 'Invalid ETA value. It must be a non-negative number representing duration in minutes.' });
+        // }
     
         if (ETAUnit && !['minutes', 'hours'].includes(ETAUnit)) {
             return res.status(400).json({ message: 'Invalid ETA unit. It must be either "minutes" or "hours".' });
@@ -58,6 +58,7 @@ TaskController.createTask = async(req, res) =>{
             priority,
             status,
             ETA,
+            ETAUnit,
             deadline,
             description,
             createdAt: new Date(), // Automatically setting the created date
@@ -68,6 +69,7 @@ TaskController.createTask = async(req, res) =>{
         }); 
         // Save the task to the database
         const savedTask = await newTask.save();
+        console.log("savedTask", savedTask)
         res.status(200).json({
             message: "Task created successfully", 
             task: savedTask

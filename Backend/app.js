@@ -21,8 +21,7 @@ mongoose.connect(mongoUri)
 
 const authRoutes = require("./routes/authRoutes"); 
 const taskRoutes = require("./routes/taskRoutes"); 
-
-
+const profileRoute = require("./routes/profileRoutes"); 
 
 //Use Routes
 app.use(cors()); 
@@ -31,6 +30,7 @@ app.use(cookieParser());
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", taskRoutes)
+app.use("/api/v1", profileRoute)
 
 app.listen(PORT,()=> console.log("Server is running on port : " + PORT)); 
 
