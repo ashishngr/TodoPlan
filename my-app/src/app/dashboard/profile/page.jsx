@@ -27,6 +27,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs"; 
 import PasswordInput from "@/app/components/PasswordInput";
+import { Snackbar } from "@mui/material";
+
 
 import API from "@/app/common/api";
 
@@ -67,6 +69,8 @@ export default function Profile() {
   });
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -104,7 +108,16 @@ export default function Profile() {
   const handleRemove = (email) => {
     setInvitees(invitees.filter((invitee) => invitee.email !== email));
   };
-
+  const handleProfileUpdate = async () =>{
+    try {
+      setSuccessMsg(null);  // Clear previous success message
+      const response = await API.updateUserProfile(profile);  
+      console.log("response------", response.data.message)
+      setSuccessMsg(response.data.message);  
+    } catch (error) {
+      
+    }
+  }
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -132,6 +145,7 @@ export default function Profile() {
                   type="text"
                   placeholder="First Name"
                   className="w-[200px]"
+                  name="firstName"
                   value={profile.firstName}
                   onChange={handleInputChange}
                 />
@@ -139,6 +153,7 @@ export default function Profile() {
                   type="text"
                   placeholder="Last Name"
                   className="w-[200px]"
+                  name="lastName"
                   value={profile.lastName}
                   onChange={handleInputChange}
                 />
@@ -146,6 +161,7 @@ export default function Profile() {
                   type="email"
                   placeholder="Email"
                   className="w-[200px]"
+                  name="email"
                   value={profile.email}
                   onChange={handleInputChange}
                 />
@@ -153,6 +169,7 @@ export default function Profile() {
                   type="text"
                   placeholder="Region"
                   className="w-[200px]"
+                  name="region"
                   value={profile.region}
                   onChange={handleInputChange}
                 />
@@ -160,6 +177,7 @@ export default function Profile() {
                   type="number"
                   placeholder="Contact Number"
                   className="w-[200px]"
+                  name="contactNumber"
                   value={profile.contactNumber}
                   onChange={handleInputChange}
                 />
@@ -173,13 +191,14 @@ export default function Profile() {
                         fontSize: "14px", // Adjust font size
                       },
                     }}
+
                       value={profile.dob}
-                      onChange={handleInputChange}
+                      onChange={handleDobChange}
                     />
                   </DemoContainer>
                 </LocalizationProvider>
               </form>
-              <div className="flex justify-center items-center ">
+              <div className="flex justify-center items-center " onClick={handleProfileUpdate}>
                 <span className="text-lg text-white bg-black p-2 rounded-lg cursor-pointer mt-4 transition-transform duration-300 hover:scale-110">
                   UPDATE DETAILS
                 </span>
