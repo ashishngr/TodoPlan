@@ -140,6 +140,26 @@ ProfileController.getAllInvitees = async(req, res) =>{
     return ErrorUtils.APIErrorResponse(res); 
   }
 }
-//TODO : CONTROLLER TO GET ALL PENDING INVITEE 
+//TODO : CONTROLLER TO GET ALL NON ACCEPTED STATUS INVITEES
+ProfileController.getInviteesByStatus = async(req, res) =>{
+  try {
+    const userId = req.user.id; 
+    const user = await User.findById(userId)
+    if(!user){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    }
+    const statuses = ["Draft", "Pending", "Rejected", "Resent", "Expired"]; 
+    const invitees = await Invitee.find({
+      invitedBy: user._id,
+      status: { $in: statuses }
+    });
+    return res.status(200).json({
+      invitees
+    });
+  } catch (error) {
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res); 
+  }
+}
 
 //TODO : CONTROLLER TO REMOVE INVITEE 
