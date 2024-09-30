@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const {Schema} = mongoose; 
 
 const inviteeSchema = new Schema(
   {
@@ -22,6 +23,19 @@ const inviteeSchema = new Schema(
       enum: ["Draft", "Pending", "Accepted", "Rejected"],
       default: "Draft", // Initial state
     },
+    statusLog: [
+      {
+        status: {
+          type: String,
+          enum: ["Draft", "Pending", "Accepted", "Rejected", "Resent", "Expired"],
+          required: true,
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     invitedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -48,4 +62,6 @@ const inviteeSchema = new Schema(
 );
 
 const Invitee = mongoose.model("Invitee", inviteeSchema);
-module.exports = Invitee;
+module.exports = {
+  Invitee
+};

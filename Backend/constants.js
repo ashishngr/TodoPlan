@@ -22,5 +22,9 @@ exports.ERRORS = {
     INCORRECT_PASSWORD : {
         status_code : 400, 
         message : "Incorrect password"
+    }, 
+    INVITEE_ALREADY_EXISTS : {
+        status : 400, 
+        message : "Invitee already exists"
     }
 }

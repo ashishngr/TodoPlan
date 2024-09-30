@@ -9,6 +9,6 @@ let validateToken = AdminAuthHelper.validateToken;
 router.get("/basicDetails", validateToken, ProfileController.getUserBasicInfomation);
 router.post("/basicDetails", validateToken, ProfileController.updateBasicInformation);
 router.post("/updatePassowrd", validateToken, ProfileController.updatePassword); 
-
+router.post("/sendInvitaion", validateToken, ProfileController.senInvitee); 
 
 module.exports = router

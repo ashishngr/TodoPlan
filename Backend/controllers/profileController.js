@@ -1,4 +1,5 @@
 const { User } = require("../models/Auth");
+const {Invitee} = require("../models/InviteeSchema")
 const { ERRORS } = require("../constants");
 const ErrorUtils = require("../utils/errorUtils");
 const bcrypt = require('bcrypt');
@@ -88,4 +89,42 @@ ProfileController.updatePassword = async(req, res) =>{
     console.log(error); 
     return ErrorUtils.APIErrorResponse(res)
   }
+}; 
+//TODO : CONTROLLER TO SEND INVITATION 
+ProfileController.senInvitee = async(req, res) =>{
+  try {
+    const {firstName, lastName, email} = req.body; 
+    const userId = req.user.id; 
+    if(!firstName || !lastName || !email){
+        return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST)
+    }
+    const user = await User.findById(userId); 
+    if(!user){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    }
+
+    // Check if invitee already exists
+    const invitees = await Invitee.findOne({email}); 
+    if(invitees){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_ALREADY_EXISTS)
+    }
+    const newInvitee = new Invitee({
+      firstName : firstName,
+      lastName : lastName, 
+      email : email, 
+      invitedBy: user._id,
+      status : 'Pending'
+    })
+    await newInvitee.save();
+    return res.status(200).json({
+      message : "Send Invitation succesfully"
+    })
+  } catch (error) {
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res); 
+  }
 }
+
+//TODO : CONTROLLER TO GET ALL INVITEE 
+//TODO : CONTROLLER TO GET ALL PENDING INVITEE 
+//TODO : CONTROLLER TO REMOVE INVITEE 
