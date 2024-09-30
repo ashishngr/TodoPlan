@@ -126,5 +126,20 @@ ProfileController.senInvitee = async(req, res) =>{
 }
 
 //TODO : CONTROLLER TO GET ALL INVITEE 
+ProfileController.getAllInvitees = async(req, res) =>{
+  try {
+    const userId = req.user.id; 
+    const user = await User.findById(userId); 
+    if(!user){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    }
+    const invitees = await Invitee.find({invitedBy : user._id}).select('firstName');
+    res.status(200).json({invitees})
+  } catch (error) {
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res); 
+  }
+}
 //TODO : CONTROLLER TO GET ALL PENDING INVITEE 
+
 //TODO : CONTROLLER TO REMOVE INVITEE 

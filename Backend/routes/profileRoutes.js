@@ -10,5 +10,5 @@ router.get("/basicDetails", validateToken, ProfileController.getUserBasicInfomat
 router.post("/basicDetails", validateToken, ProfileController.updateBasicInformation);
 router.post("/updatePassowrd", validateToken, ProfileController.updatePassword); 
 router.post("/sendInvitaion", validateToken, ProfileController.senInvitee); 
-
+router.get("/invitees", validateToken, ProfileController.getAllInvitees); 
 module.exports = router
