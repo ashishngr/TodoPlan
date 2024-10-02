@@ -161,5 +161,23 @@ ProfileController.getInviteesByStatus = async(req, res) =>{
     return ErrorUtils.APIErrorResponse(res); 
   }
 }
-
 //TODO : CONTROLLER TO REMOVE INVITEE 
+ProfileController.DeleteInvitee = async(req, res) =>{
+  try {
+    const inviteeId = req.params.id;
+    const user = await User.findById(userId)
+    const currentUserId = req.user.id;  
+    if(!user){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    }
+    const invitee = await Invitee.findOne({ _id: inviteeId, invitedBy: currentUserId });
+    if (!invitee) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_NOT_FOUNT)
+    }
+    await Invitee.findByIdAndDelete(inviteeId); 
+    return res.status(200).json({maeeage : "Invitee removed successfully"})
+  } catch (error) {
+    console.log(error); 
+    return ErrorUtils.APIErrorResponse(res); 
+  }
+}

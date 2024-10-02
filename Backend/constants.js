@@ -26,5 +26,9 @@ exports.ERRORS = {
     INVITEE_ALREADY_EXISTS : {
         status : 400, 
         message : "Invitee already exists"
+    }, 
+    INVITEE_NOT_FOUNT : {
+        status : 404, 
+        message : "Invitee not found or you don't have permission to delete this invitee"
     }
 }
