@@ -1,9 +1,8 @@
 const { User } = require("../models/Auth");
-const {Invitee} = require("../models/InviteeSchema")
+const { Invitee } = require("../models/InviteeSchema");
 const { ERRORS } = require("../constants");
 const ErrorUtils = require("../utils/errorUtils");
-const bcrypt = require('bcrypt');
-
+const bcrypt = require("bcrypt");
 
 const ProfileController = module.exports;
 
@@ -20,30 +19,30 @@ ProfileController.getUserBasicInfomation = async (req, res) => {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
 
-    res.status(200).json( {basicDetails} );
+    res.status(200).json({ basicDetails });
   } catch (error) {
     console.log(error);
-    return ErrorUtils.APIErrorResponse(res)
+    return ErrorUtils.APIErrorResponse(res);
   }
 };
-ProfileController.updateBasicInformation = async(req, res) =>{
+ProfileController.updateBasicInformation = async (req, res) => {
   try {
     const { firstName, lastName, email, contactNumber, region, dob } = req.body;
     if (!firstName || !lastName || !email || !contactNumber || !dob) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
-    const userId = req.user.id; 
-    const user = await User.findById(userId); 
-    if(!user){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
     //Update user
     user.firstName = firstName;
     user.lastName = lastName;
     user.email = email;
-    user.contactNumber = contactNumber || user.contactNumber;  // Update if provided
-    user.region = region || user.region;  // Update if provided
-    user.dob = dob || user.dob;  // Update if provided
+    user.contactNumber = contactNumber || user.contactNumber; // Update if provided
+    user.region = region || user.region; // Update if provided
+    user.dob = dob || user.dob; // Update if provided
     // Save the updated user profile
     await user.save();
 
@@ -59,125 +58,133 @@ ProfileController.updateBasicInformation = async(req, res) =>{
         dob: user.dob,
       },
     });
-
   } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res)
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
   }
-}
-ProfileController.updatePassword = async(req, res) =>{
+};
+ProfileController.updatePassword = async (req, res) => {
   try {
-    const {currentPassword , newPassword} = req.body; 
-    const userId = req.user.id; 
-    if(!currentPassword && !newPassword){
-        return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+    if (!currentPassword && !newPassword) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
-    const user = await User.findById(userId); 
+    const user = await User.findById(userId);
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
-    if(!isPasswordMatch){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.INCORRECT_PASSWORD)
+    const isPasswordMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordMatch) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INCORRECT_PASSWORD);
     }
-    user.password = newPassword; 
-    await user.save(); 
+    user.password = newPassword;
+    await user.save();
     return res.status(200).json({
-      message: 'Password updated successfully!',
-    })
+      message: "Password updated successfully!",
+    });
   } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res)
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
   }
-}; 
-//TODO : CONTROLLER TO SEND INVITATION 
-ProfileController.senInvitee = async(req, res) =>{
+};
+//TODO : CONTROLLER TO SEND INVITATION
+ProfileController.senInvitee = async (req, res) => {
   try {
-    const {firstName, lastName, email} = req.body; 
-    const userId = req.user.id; 
-    if(!firstName || !lastName || !email){
-        return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST)
+    const { firstName, lastName, email } = req.body;
+    const userId = req.user.id;
+    if (!firstName || !lastName || !email) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
-    const user = await User.findById(userId); 
-    if(!user){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    const user = await User.findById(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
 
     // Check if invitee already exists
-    const invitees = await Invitee.findOne({email}); 
-    if(invitees){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_ALREADY_EXISTS)
+    const invitees = await Invitee.findOne({ email });
+    if (invitees) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_ALREADY_EXISTS);
     }
     const newInvitee = new Invitee({
-      firstName : firstName,
-      lastName : lastName, 
-      email : email, 
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
       invitedBy: user._id,
-      status : 'Pending'
-    })
+      status: "Pending",
+    });
     await newInvitee.save();
     return res.status(200).json({
-      message : "Send Invitation succesfully"
-    })
+      message: "Send Invitation succesfully",
+    });
   } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res); 
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
   }
-}
+};
 
-//TODO : CONTROLLER TO GET ALL INVITEE 
-ProfileController.getAllInvitees = async(req, res) =>{
+//TODO : CONTROLLER TO GET ALL INVITEE
+ProfileController.getAllInvitees = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const user = await User.findById(userId); 
-    if(!user){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    const invitees = await Invitee.find({invitedBy : user._id}).select('firstName');
-    res.status(200).json({invitees})
-  } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res); 
-  }
-}
-//TODO : CONTROLLER TO GET ALL NON ACCEPTED STATUS INVITEES
-ProfileController.getInviteesByStatus = async(req, res) =>{
-  try {
-    const userId = req.user.id; 
-    const user = await User.findById(userId)
-    if(!user){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
-    }
-    const statuses = ["Draft", "Pending", "Rejected", "Resent", "Expired"]; 
     const invitees = await Invitee.find({
       invitedBy: user._id,
-      status: { $in: statuses }
+      status: "Accepted",
+    }).select("firstName lastName");
+    res.status(200).json({ invitees });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+};
+//TODO : CONTROLLER TO GET ALL NON ACCEPTED STATUS INVITEES
+ProfileController.getInviteesByStatus = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+    const statuses = ["Draft", "Pending", "Rejected", "Resent", "Expired"];
+    const invitees = await Invitee.find({
+      invitedBy: user._id,
+      status: { $in: statuses },
     });
     return res.status(200).json({
-      invitees
+      invitees,
     });
   } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res); 
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
   }
-}
-//TODO : CONTROLLER TO REMOVE INVITEE 
-ProfileController.DeleteInvitee = async(req, res) =>{
+};
+//TODO : CONTROLLER TO REMOVE INVITEE
+ProfileController.DeleteInvitee = async (req, res) => {
   try {
     const inviteeId = req.params.id;
-    const user = await User.findById(userId)
-    const currentUserId = req.user.id;  
-    if(!user){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+    const user = await User.findById(userId);
+    const currentUserId = req.user.id;
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    const invitee = await Invitee.findOne({ _id: inviteeId, invitedBy: currentUserId });
+    const invitee = await Invitee.findOne({
+      _id: inviteeId,
+      invitedBy: currentUserId,
+    });
     if (!invitee) {
-      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_NOT_FOUNT)
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_NOT_FOUNT);
     }
-    await Invitee.findByIdAndDelete(inviteeId); 
-    return res.status(200).json({maeeage : "Invitee removed successfully"})
+    await Invitee.findByIdAndDelete(inviteeId);
+    return res.status(200).json({ maeeage: "Invitee removed successfully" });
   } catch (error) {
-    console.log(error); 
-    return ErrorUtils.APIErrorResponse(res); 
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
   }
-}
+};
