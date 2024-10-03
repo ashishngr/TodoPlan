@@ -38,6 +38,10 @@ const API = {
     }, 
     addInvitee : async(payload) => {
         return await axios.post(`${API_BASE_URL}/api/v1/sendInvitaion`, payload, getHeadersWithToken()); 
+    },
+    getInactiveInvitees : async() =>{
+        return await axios.get(`${API_BASE_URL}/api/v1/invitees/status`, getHeadersWithToken())
     }
+    
 }
 export default API; 

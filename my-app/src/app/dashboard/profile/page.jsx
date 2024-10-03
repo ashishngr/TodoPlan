@@ -83,6 +83,7 @@ export default function Profile() {
   const [inviteeFirstName, setInviteeFirstName] = useState("");
   const [inviteeLastName, setInviteeLastName] = useState("");
   const [inviteeEmail, setInviteeEmail] = useState("");
+  const [inactiveInvitees, setInactiveInvitees] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -102,6 +103,8 @@ export default function Profile() {
 
     fetchProfile();
   }, []);
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProfile({
@@ -170,6 +173,19 @@ export default function Profile() {
       console.error("Failed to add invitee:", error);
     }
   }
+  useEffect(() => {
+    const fetchInactiveInvitees = async () => {
+      try {
+        const response = await API.getInactiveInvitees();
+        console.log("Response in active", response.data.invitees)
+        setInactiveInvitees(response.data.invitees); // Assuming API returns data in this format
+      } catch (error) {
+        console.error("Failed to fetch inactive invitees:", error);
+      }
+    };
+
+    fetchInactiveInvitees();
+  }, [handleAddInvitee]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -383,34 +399,41 @@ export default function Profile() {
                 <CardTitle>Invitations in progress</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-row justify-between items-center  bg-gray-50 p-2 rounded-lg">
-                  {/* Avatar */}
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-400 text-white font-bold">
-                    {/* {invitee.name.charAt(0)} */} A
+              {inactiveInvitees.length > 0 ? (
+                inactiveInvitees.map((invitee, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-row justify-between items-center bg-gray-50 p-2 rounded-lg mb-2"
+                  >
+                    {/* Avatar */}
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-400 text-white font-bold">
+                      {invitee.firstName.charAt(0)}
+                    </div>
+
+                    {/* Invitee Name */}
+                    <span className="text-gray-800 font-medium">
+                      {invitee.firstName} {" "} {invitee.lastName}
+                    </span>
+
+                    {/* Status */}
+                    <span className={`text-sm font-semibold text-yellow-600`}>
+                      {invitee.status}
+                    </span>
+
+                    {/* Delete Button */}
+                    <button className="text-red-500 hover:text-red-700">
+                      <MdDeleteOutline size={22} />
+                    </button>
+
+                    {/* Send Again Button */}
+                    <button className="text-blue-500 hover:text-blue-700">
+                      <LuSendHorizonal size={22} />
+                    </button>
                   </div>
-
-                  {/* Invitee Name */}
-                  <span className="text-gray-800 font-medium">
-                    {/* {invitee.name} */} Ashish Nagar
-                  </span>
-
-                  {/* Status */}
-                  <span className={`text-sm font-semibold text-yellow-600`}>
-                    {/* {invitee.status === 'accepted' ? 'Accepted' : 'Pending'} */}{" "}
-                    Pending
-                  </span>
-
-                  {/* Delete Button */}
-                  <button className="text-red-500 hover:text-red-700">
-                      <MdDeleteOutline size={22}/>
-                  </button>
-
-                  {/* Send Again Button */}
-                  <button className="text-blue-500 hover:text-blue-700">
-                  <LuSendHorizonal size={22}/>
-
-                  </button>
-                </div>
+                ))
+              ) : (
+                <div className="text-gray-500 text-lg">No inactive invitees.</div>
+              )}
                 <Separator />
               </CardContent>
             </Card>
