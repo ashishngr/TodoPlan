@@ -80,6 +80,9 @@ export default function Profile() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [successMsg, setSuccessMsg] = useState(null);
+  const [inviteeFirstName, setInviteeFirstName] = useState("");
+  const [inviteeLastName, setInviteeLastName] = useState("");
+  const [inviteeEmail, setInviteeEmail] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -148,6 +151,25 @@ export default function Profile() {
   const handleSnackbarClose = () => {
     setSuccessMsg(null);
   };
+  const handleAddInvitee = async() =>{
+    
+    try {
+      const inviteeData = {
+        firstName: inviteeFirstName,
+        lastName: inviteeLastName,
+        email: inviteeEmail,
+      };
+      const response = await API.addInvitee(inviteeData); 
+      console.log("response add invitee", response)
+      if(response.status === 200){
+        setInviteeFirstName("");
+        setInviteeLastName("");
+        setInviteeEmail("");
+      }
+    } catch (error) {
+      console.error("Failed to add invitee:", error);
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -290,12 +312,19 @@ export default function Profile() {
                   <form>
                     <div className="grid w-full items-center gap-4">
                       <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" placeholder="Enter Name" />
+                        <Label htmlFor="inviteeFirstname">First Name</Label>
+                        <Input id="inviteeFirstname" name="inviteeFirstname" placeholder="Enter First Name"   value={inviteeFirstName}
+                        onChange={(e) => setInviteeFirstName(e.target.value)}/>
                       </div>
                       <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="emai">Email</Label>
-                        <Input id="email" placeholder="Enter Email" />
+                        <Label htmlFor="inviteeLastname">Last Name</Label>
+                        <Input id="inviteeLastname" name="inviteeLastname" placeholder="Enter Last Name" value={inviteeLastName}
+                           onChange={(e) => setInviteeLastName(e.target.value)}/>
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="inviteeEmai">Email</Label>
+                        <Input id="inviteeEmai" name="inviteeEmai" placeholder="Enter Email"  value={inviteeEmail}
+                        onChange={(e) => setInviteeEmail(e.target.value)}/>
                       </div>
                     </div>
                   </form>
@@ -303,7 +332,7 @@ export default function Profile() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>CANCEL</AlertDialogCancel>
-                <AlertDialogAction>ADD</AlertDialogAction>
+                <AlertDialogAction onClick={handleAddInvitee}>ADD</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

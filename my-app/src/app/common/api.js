@@ -35,6 +35,9 @@ const API = {
     }, 
     updatePassword : async(payload) =>{
         return await axios.post(`${API_BASE_URL}/api/v1/updatePassowrd`, payload, getHeadersWithToken())
+    }, 
+    addInvitee : async(payload) => {
+        return await axios.post(`${API_BASE_URL}/api/v1/sendInvitaion`, payload, getHeadersWithToken()); 
     }
 }
 export default API; 
