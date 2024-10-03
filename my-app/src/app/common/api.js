@@ -44,6 +44,9 @@ const API = {
     }, 
     getInvitees : async() =>{
         return await axios.get(`${API_BASE_URL}/api/v1/invitees`, getHeadersWithToken()); 
+    }, 
+    deleteInvitee : async(id, payload) =>{
+        return await axios.put(`${API_BASE_URL}/api/v1/invitees/${id}`,payload, getHeadersWithToken()); 
     }
 
 }

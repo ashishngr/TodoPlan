@@ -78,6 +78,29 @@ export default function Profile() {
 
     fetchProfile();
   }, []);
+  const fetchInvitees = async() =>{
+    try {
+      const response = await API.getInvitees(); 
+      setInvitees(response.data.invitees)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const fetchInactiveInvitees = async () => {
+    try {
+      const response = await API.getInactiveInvitees();
+      console.log("Response in active", response.data.invitees)
+      setInactiveInvitees(response.data.invitees); // Assuming API returns data in this format
+    } catch (error) {
+      console.error("Failed to fetch inactive invitees:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvitees()
+    fetchInactiveInvitees();
+  }, []);
+
 
 
   const handleInputChange = (e) => {
@@ -93,9 +116,20 @@ export default function Profile() {
       dob: newDate, // Set the new date as a dayjs object
     });
   };
-  const handleRemove = (email) => {
-    setInvitees(invitees.filter((invitee) => invitee.email !== email));
-  };
+
+  const removeInvitee = async(id) =>{
+    try {
+      const response = await API.deleteInvitee(id); 
+      console.log("response----------->",  response)
+      if(response.status === 200){
+        await fetchInactiveInvitees();
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
   const handleProfileUpdate = async () => {
     try {
       setSuccessMsg(null);
@@ -129,8 +163,8 @@ export default function Profile() {
   const handleSnackbarClose = () => {
     setSuccessMsg(null);
   };
+
   const handleAddInvitee = async() =>{
-    
     try {
       const inviteeData = {
         firstName: inviteeFirstName,
@@ -143,38 +177,39 @@ export default function Profile() {
         setInviteeFirstName("");
         setInviteeLastName("");
         setInviteeEmail("");
+        await fetchInactiveInvitees();
       }
     } catch (error) {
       console.error("Failed to add invitee:", error);
     }
   }
+  const handleRemove = async(email, id) => {
+    console.log("*******", typeof(id))
+    try {
+      const response = await API.deleteInvitee(id);
 
-
-  useEffect(() => {
-    const fetchInactiveInvitees = async () => {
-      try {
-        const response = await API.getInactiveInvitees();
-        console.log("Response in active", response.data.invitees)
-        setInactiveInvitees(response.data.invitees); // Assuming API returns data in this format
-      } catch (error) {
-        console.error("Failed to fetch inactive invitees:", error);
+      if (response.status === 200) {
+        setInvitees(invitees.filter((invitee) => invitee.email !== email));
+        fetchInvitees()
       }
-    };
-
-    fetchInactiveInvitees();
-  }, [handleAddInvitee]);
-
-  useEffect(()=>{
-    const fetchInvitees = async() =>{
-      try {
-        const response = await API.getInvitees(); 
-        setInvitees(response.data.invitees)
-      } catch (error) {
-        console.log(error)
-      }
+    } catch (error) {
+      console.error("Error deleting invitee:", error);
+      // Handle error appropriately (e.g., show toast message)
     }
-    fetchInvitees()
-  },[])
+  };
+  
+
+  const statusColor = (status) => {
+    return status === "Draft" ? "text-gray-600" :
+           status === "Pending" ? "text-yellow-600" :
+           status === "Accepted" ? "text-green-600" :
+           status === "Rejected" ? "text-red-600" :
+           status === "Deleted" ? "text-red-500" :
+           status === "Resent" ? "text-blue-600" :
+           status === "Expired" ? "text-orange-600" :
+           "text-black"; // default color if none matches
+  };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -353,7 +388,7 @@ export default function Profile() {
               <div className="flex flex-row flex-wrap space-x-2 gap-2">
                 {invitees.map((invitee, index) => (
                   <div
-                    key={index}
+                    key={invitee._id}
                     className="flex items-center bg-gray-200 p-2 rounded-full space-x-2"
                   >
                     {/* Avatar with the first letter of the name */}
@@ -364,7 +399,7 @@ export default function Profile() {
                     <span className="text-gray-800">{invitee.firstName}{" "}{invitee.lastName}</span>
                     {/* Circular Remove Button with Larger Cross */}
                     <button
-                      onClick={() => handleRemove(invitee.email)}
+                      onClick={() => handleRemove(invitee.email, invitee._id)}
                       className="ml-2 w-8 h-8 bg-black text-white rounded-full transition-transform duration-300 hover:scale-110 text-2xl"
                     >
                       &times;
@@ -408,13 +443,13 @@ export default function Profile() {
                     </span>
 
                     {/* Status */}
-                    <span className={`text-sm font-semibold text-yellow-600`}>
+                    <span className={`text-sm font-semibold ${statusColor(invitee.status)}`}>
                       {invitee.status}
                     </span>
 
                     {/* Delete Button */}
                     <button className="text-red-500 hover:text-red-700">
-                      <MdDeleteOutline size={22} />
+                      <MdDeleteOutline size={22} onClick={()=>removeInvitee(invitee._id)}/>
                     </button>
 
                     {/* Send Again Button */}
