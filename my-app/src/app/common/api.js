@@ -41,7 +41,10 @@ const API = {
     },
     getInactiveInvitees : async() =>{
         return await axios.get(`${API_BASE_URL}/api/v1/invitees/status`, getHeadersWithToken())
+    }, 
+    getInvitees : async() =>{
+        return await axios.get(`${API_BASE_URL}/api/v1/invitees`, getHeadersWithToken()); 
     }
-    
+
 }
 export default API; 

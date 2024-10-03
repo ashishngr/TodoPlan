@@ -42,32 +42,7 @@ import { LuSendHorizonal } from "react-icons/lu";
 import API from "@/app/common/api";
 
 export default function Profile() {
-  const [invitees, setInvitees] = useState([
-    {
-      name: "Mikku Nagar",
-      email: "mikku1@gmail.com",
-    },
-    {
-      name: "Simran Nagar",
-      email: "simran2@gmail.com",
-    },
-    {
-      name: "Mikku Nagar",
-      email: "mikku3@gmail.com",
-    },
-    {
-      name: "Simran Nagar",
-      email: "simran4@gmail.com",
-    },
-    {
-      name: "Mikku Nagar",
-      email: "mikku5@gmail.com",
-    },
-    {
-      name: "Simran Nagar",
-      email: "simran6@gmail.com",
-    },
-  ]);
+  const [invitees, setInvitees] = useState([]);
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -173,6 +148,8 @@ export default function Profile() {
       console.error("Failed to add invitee:", error);
     }
   }
+
+
   useEffect(() => {
     const fetchInactiveInvitees = async () => {
       try {
@@ -186,6 +163,18 @@ export default function Profile() {
 
     fetchInactiveInvitees();
   }, [handleAddInvitee]);
+
+  useEffect(()=>{
+    const fetchInvitees = async() =>{
+      try {
+        const response = await API.getInvitees(); 
+        setInvitees(response.data.invitees)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchInvitees()
+  },[])
 
   if (loading) {
     return <div>Loading...</div>;
@@ -355,11 +344,12 @@ export default function Profile() {
         </div>
         {/* Invitees  Section */}
         <div className="flex flex-row justify-between p-4 gap-6">
-          <Card className="max-w-[50%] p-2">
+          <Card className="max-w-[50%] p-2 ">
             <CardHeader>
               <CardTitle>Your Invitees</CardTitle>
             </CardHeader>
-            {invitees.length > 0 ? (
+            <CardContent  className="max-h-[240px] overflow-y-auto">
+                {invitees.length > 0 ? (
               <div className="flex flex-row flex-wrap space-x-2 gap-2">
                 {invitees.map((invitee, index) => (
                   <div
@@ -368,10 +358,10 @@ export default function Profile() {
                   >
                     {/* Avatar with the first letter of the name */}
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-400 text-white font-bold">
-                      {invitee.name.charAt(0)}
+                      {invitee.firstName.charAt(0)}
                     </div>
                     {/* Full name */}
-                    <span className="text-gray-800">{invitee.name}</span>
+                    <span className="text-gray-800">{invitee.firstName}{" "}{invitee.lastName}</span>
                     {/* Circular Remove Button with Larger Cross */}
                     <button
                       onClick={() => handleRemove(invitee.email)}
@@ -392,13 +382,15 @@ export default function Profile() {
                 </Alert>
               </div>
             )}
+            </CardContent>
+          
           </Card>
           <div className="w-[50%]">
             <Card className="w-full p-2">
               <CardHeader>
                 <CardTitle>Invitations in progress</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="max-h-[240px] overflow-y-auto">
               {inactiveInvitees.length > 0 ? (
                 inactiveInvitees.map((invitee, index) => (
                   <div
