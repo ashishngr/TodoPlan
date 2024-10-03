@@ -137,7 +137,7 @@ ProfileController.getAllInvitees = async (req, res) => {
     const invitees = await Invitee.find({
       invitedBy: user._id,
       status: "Accepted",
-    }).select("firstName lastName");
+    });
     res.status(200).json({ invitees });
   } catch (error) {
     console.log(error);
@@ -152,7 +152,7 @@ ProfileController.getInviteesByStatus = async (req, res) => {
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    const statuses = ["Draft", "Pending", "Rejected", "Resent", "Expired"];
+    const statuses = ["Draft", "Pending", "Rejected", "Resent", "Expired", "Deleted"];
     const invitees = await Invitee.find({
       invitedBy: user._id,
       status: { $in: statuses },
@@ -167,10 +167,12 @@ ProfileController.getInviteesByStatus = async (req, res) => {
 };
 //TODO : CONTROLLER TO REMOVE INVITEE
 ProfileController.DeleteInvitee = async (req, res) => {
+  console.log("We are here")
   try {
     const inviteeId = req.params.id;
-    const user = await User.findById(userId);
+    console.log("invit id", inviteeId)
     const currentUserId = req.user.id;
+    const user = await User.findById(currentUserId);
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
@@ -181,8 +183,10 @@ ProfileController.DeleteInvitee = async (req, res) => {
     if (!invitee) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_NOT_FOUNT);
     }
-    await Invitee.findByIdAndDelete(inviteeId);
-    return res.status(200).json({ maeeage: "Invitee removed successfully" });
+    invitee.status = "Deleted";
+    await invitee.save();
+
+    return res.status(200).json({ maeeage: "Invitee status changed to 'Deleted' successfully" });
   } catch (error) {
     console.log(error);
     return ErrorUtils.APIErrorResponse(res);

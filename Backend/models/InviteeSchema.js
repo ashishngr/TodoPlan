@@ -20,14 +20,14 @@ const inviteeSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Draft", "Pending", "Accepted", "Rejected"],
+      enum: ["Draft", "Pending", "Accepted", "Rejected", "Deleted", "Resent", "Expired"],
       default: "Draft", // Initial state
     },
     statusLog: [
       {
         status: {
           type: String,
-          enum: ["Draft", "Pending", "Accepted", "Rejected", "Resent", "Expired"],
+          enum: ["Draft", "Pending", "Accepted", "Rejected", "Resent", "Expired", "Deleted"],
           required: true,
         },
         timestamp: {
