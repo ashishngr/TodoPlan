@@ -10,7 +10,7 @@ const ErrorUtils = require("../utils/errorUtils");
 
 const TaskController = module.exports; 
 
-TaskController.createTask = async(req, res) =>{
+TaskController.createManualTask = async(req, res) =>{
     try {
         const id = req.user.id; 
         const email = req.user.email; 
@@ -20,12 +20,6 @@ TaskController.createTask = async(req, res) =>{
             status, //
             ETA, //
             ETAUnit, //
-            deadline, //
-            description, //
-            comment,
-            completionDate, 
-            tags,
-            attachments
         } = req.body; 
         if(!title){
             return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST)
@@ -42,11 +36,6 @@ TaskController.createTask = async(req, res) =>{
         if (status && !['backlog', 'in-progress', 'completed', 'on-hold', 'cancelled', 'blocked', 'archived'].includes(status)) {
             return res.status(400).json({ message: 'Invalid status value' });
         }
-    
-        // if (ETA !== undefined && (typeof ETA !== 'number' || ETA < 0)) {
-        //     return res.status(400).json({ message: 'Invalid ETA value. It must be a non-negative number representing duration in minutes.' });
-        // }
-    
         if (ETAUnit && !['minutes', 'hours'].includes(ETAUnit)) {
             return res.status(400).json({ message: 'Invalid ETA unit. It must be either "minutes" or "hours".' });
         }
@@ -59,13 +48,7 @@ TaskController.createTask = async(req, res) =>{
             status,
             ETA,
             ETAUnit,
-            deadline,
-            description,
             createdAt: new Date(), // Automatically setting the created date
-            comment,
-            completionDate,
-            tags,
-            attachments,
         }); 
         // Save the task to the database
         const savedTask = await newTask.save();
@@ -131,6 +114,7 @@ TaskController.updateTask = async(req, res) =>{
             id,
         {
             title,
+            taskType: 'manual',
             priority,
             status,
             ETA,

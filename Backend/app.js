@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 8080;
 
 const mongoUri = process.env.DATABASE; 
 mongoose.set("strictQuery", false); 
-mongoose.connect(mongoUri)
+mongoose.connect(mongoUri, {serverSelectionTimeoutMS: 5000})
 .then(()=>{
      console.log("MongoDB Database connected")
     }).catch((error)=>{

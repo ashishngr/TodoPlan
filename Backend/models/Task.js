@@ -1,6 +1,19 @@
-const { text } = require("body-parser");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+
+const subTaskSchema = new Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  status: {
+    type: String,
+    enum: ["complete", "backlog"],
+    default: "backlog", // Default status for sub-tasks
+    required: true,
+  },
+});
 
 const taskSchema = new Schema(
   {
@@ -50,6 +63,7 @@ const taskSchema = new Schema(
       ],
       default: "backlog",
     },
+    subTasks: [subTaskSchema],
     activity: [
       {
         updatedBy: {
@@ -94,6 +108,27 @@ const taskSchema = new Schema(
       type: String,
       default: "No Comments",
     },
+    taskType: {
+      type: String,
+      enum: ["Manual", "AI", "Google"],
+      required: true,
+      default: "Manual", // Default to Manual creation
+    },
+    prompt: {
+      type: String, // Only applicable for AI tasks
+      trim: true,
+      default: null,
+    },
+    googleTaskId: {
+      type: String, // Only applicable for Google Tasks
+      trim: true,
+      default: null,
+    },
+    googleCalendarId: {
+      type: String, // Calendar ID associated with the Google Task
+      trim: true,
+      default: null,
+    }
   },
   {
     collection: "task",
