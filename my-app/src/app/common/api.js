@@ -47,6 +47,9 @@ const API = {
     }, 
     deleteInvitee : async(id, payload) =>{
         return await axios.put(`${API_BASE_URL}/api/v1/invitees/${id}`,payload, getHeadersWithToken()); 
+    },
+    createManualTask : async(payload) => {
+        return axios.post(`${API_BASE_URL}/api/v1/task/manual`, payload, getHeadersWithToken())
     }
 
 }

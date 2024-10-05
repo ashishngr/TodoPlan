@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import CloseIcon from "@mui/icons-material/Close";
 import DialogActions from "@mui/material/DialogActions";
 import { Input } from "@/components/ui/input";
-import { Select, MenuItem, Chip } from "@mui/material";
+import { Select, MenuItem, Chip } from "@mui/material"; 
+
+import API from "../common/api";
 
 const statusColors = {
   backlog: "rgb(255, 213, 79)", // Soft Yellow
@@ -25,6 +27,10 @@ const priorityColors = {
 const TaskDialog = ({ open, onClose }) => {
   const [status, setStatus] = useState("backlog");
   const [priority, setPriority] = useState("Medium");
+  const [etaUnit, setEtaUnit] = useState("minutes");
+  const [etaTime, setEtaTime] = useState(null);
+  const [title, setTitle] = useState("");
+
   const handleStatusChange = (e) => {
     e.preventDefault();
     setStatus(e.target.value);
@@ -32,6 +38,35 @@ const TaskDialog = ({ open, onClose }) => {
   const handlePriorityChange = (event) => {
     setPriority(event.target.value);
   };
+  const handleEtaUnitChange = (event) => {
+    setEtaUnit(event.target.value);
+  };
+  
+  const handleCreateManualTask = async(e) =>{
+    e.preventDefault(); 
+    try {
+        const payload = {
+            title,
+            status,
+            priority,
+            etaUnit,
+            etaTime,
+        };
+        const newTask  = await API.createManualTask(payload); 
+        if(newTask.status === 200){
+            setTitle(""); // Reset title to an empty string
+            setStatus("backlog"); // Reset status to default "backlog"
+            setPriority("Medium"); // Reset priority to default "Medium"
+            setEtaUnit("hour"); // Reset ETA unit to "hour"
+            setEtaTime(""); // Reset ETA time to an empty string
+            // Close the dialog (popup)
+            onClose();
+        }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div>
@@ -60,6 +95,8 @@ const TaskDialog = ({ open, onClose }) => {
                     placeholder="Enter the title"
                     className="w-full h-12 text-3xl font-bold placeholder-gray-600 border-b-2 border-gray-700 focus:outline-none focus:border-blue-500"
                     rows="1"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
                   <div className="flex items-center gap-4">
                     <Select
@@ -180,10 +217,13 @@ const TaskDialog = ({ open, onClose }) => {
                         labelId="eta-select-label"
                         id="eta-select"
                         className="border-b-2 border-gray-300 focus:border-gray-500 h-10 text-base"
-                        displayEmpty
+                        displayEmpt
+                        value={etaUnit}
+                        onChange={handleEtaUnitChange}
+                       
                       >
-                        <MenuItem value="backlog">Minutes</MenuItem>
-                        <MenuItem>Hours</MenuItem>
+                        <MenuItem value="minutes">Minutes</MenuItem>
+                        <MenuItem value="hours">Hours</MenuItem>
                       </Select>
                       <Input
                         type="number"
@@ -197,10 +237,8 @@ const TaskDialog = ({ open, onClose }) => {
                             WebkitAppearance: "none", // Remove spinners in WebKit browsers
                           },
                         }}
-                        onChange={(e) => {
-                          const value = Math.max(0, e.target.value); // Ensure the value is not negative
-                          e.target.value = value; // Update the input value
-                        }}
+                        value={etaTime}
+                        onChange={(e) => setEtaTime(Math.max(0, e.target.value))}
                       />
                     </div>
                   </div>
@@ -208,7 +246,7 @@ const TaskDialog = ({ open, onClose }) => {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button autoFocus>Save Task</Button>
+              <Button autoFocus onClick={handleCreateManualTask}>Save Task</Button>
             </DialogActions>
           </div>
         </div>
