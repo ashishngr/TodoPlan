@@ -119,13 +119,16 @@ export default function Profile() {
 
   const removeInvitee = async(id) =>{
     try {
+      setSuccessMsg(null);
       const response = await API.deleteInvitee(id); 
       console.log("response----------->",  response)
       if(response.status === 200){
+        setSuccessMsg(response.data.message)
         await fetchInactiveInvitees();
       }
     } catch (error) {
       console.log(error)
+      setSuccessMsg("Failed to remove invitee")
     }
   }
 
@@ -171,9 +174,11 @@ export default function Profile() {
         lastName: inviteeLastName,
         email: inviteeEmail,
       };
+      setSuccessMsg(null);
       const response = await API.addInvitee(inviteeData); 
       console.log("response add invitee", response)
       if(response.status === 200){
+        setSuccessMsg(response.data.message)
         setInviteeFirstName("");
         setInviteeLastName("");
         setInviteeEmail("");
@@ -181,19 +186,22 @@ export default function Profile() {
       }
     } catch (error) {
       console.error("Failed to add invitee:", error);
+      setSuccessMsg("Error : Failed to add invitee"); 
     }
   }
   const handleRemove = async(email, id) => {
     console.log("*******", typeof(id))
     try {
+      setSuccessMsg(null)
       const response = await API.deleteInvitee(id);
-
       if (response.status === 200) {
         setInvitees(invitees.filter((invitee) => invitee.email !== email));
         fetchInvitees()
+        setSuccessMsg(response.data.message)
       }
     } catch (error) {
       console.error("Error deleting invitee:", error);
+      setSuccessMsg("Error : error in removing invitee")
       // Handle error appropriately (e.g., show toast message)
     }
   };
@@ -331,12 +339,6 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <Snackbar
-            open={!!successMsg}
-            autoHideDuration={4000}
-            onClose={handleSnackbarClose}
-            message={successMsg}
-          />
           {/* Invitees */}
           <Separator />
           <AlertDialog>
@@ -379,7 +381,7 @@ export default function Profile() {
         </div>
         {/* Invitees  Section */}
         <div className="flex flex-row justify-between p-4 gap-6">
-          <Card className="max-w-[50%] p-2 ">
+          <Card className="w-[50%] p-2 ">
             <CardHeader>
               <CardTitle>Your Invitees</CardTitle>
             </CardHeader>
@@ -466,6 +468,12 @@ export default function Profile() {
             </Card>
           </div>
         </div>
+        <Snackbar
+            open={!!successMsg}
+            autoHideDuration={4000}
+            onClose={handleSnackbarClose}
+            message={successMsg}
+        />
       </div>
     </RequireAuth>
   );

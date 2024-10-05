@@ -5,8 +5,31 @@ import { IoAdd } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import RequireAuth from "@/app/common/RequireAuth";
-import API from "@/app/common/api";
 import Header from "@/app/components/Header";
+import Dialog from '@mui/material/Dialog';
+import { styled } from '@mui/material/styles';
+
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import TaskDialog from "@/app/components/TaskDialog";
+
+
+import API from "@/app/common/api";
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+  '& .MuiPaper-root': {
+    width: '40%', // Set your desired width here, for example 80% of the viewport
+    maxWidth: '400px', // You can add a max-width to limit it on larger screens
+  },
+}));
 
 const page = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +41,8 @@ const page = () => {
     "Assignee",
     "DueDate",
   ];
+  const [open, setOpen] = React.useState(false); 
+  const [openTaskDialog, setOpenTaskDialog] = useState(false)
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => {
@@ -50,6 +75,21 @@ const page = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleTaskDialogOpen = () =>{
+    setOpen(false)
+    setOpenTaskDialog(true);
+  }
+  const handleTaskDialogClose = () =>{
+    setOpenTaskDialog(false)
+  }
 
 
   return (
@@ -136,11 +176,43 @@ const page = () => {
         
         {/* Add Crad Button */}
         <div className="flex justify-center mt-2">
-          <Button className="font-bold text-xl">Add Task {" "}<span className="ml-2">
+          <Button className="font-bold text-xl"  onClick={handleClickOpen}>Create Task {" "}<span className="ml-2">
                 {" "}
                 <IoAdd size={30} />{" "}
-              </span>{" "} </Button>
+              </span>{" "} 
+          </Button>
+        <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+      >
+        <DialogTitle sx={{ m: 0, p: 2  }} id="customized-dialog-title">
+          CREATE TASK
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500],
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
+          <div className="flex flex-col flex-grow gap-2">
+            <Button onClick={handleTaskDialogOpen}>Manual Task</Button>
+            <Button>Google Task </Button>
+            <Button>Create with AI</Button>
+          </div>
+        </DialogContent>
+      </BootstrapDialog>
         </div>
+         {/* Custom TaskDialog */}
+         <TaskDialog open={openTaskDialog} onClose={handleTaskDialogClose} />
+         
         {/* Task Sections */}
         <div className="flex flex-row justify-center gap-4 p-10 flex-wrap">
            <TaskCard />
