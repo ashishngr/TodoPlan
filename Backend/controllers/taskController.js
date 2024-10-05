@@ -42,8 +42,9 @@ TaskController.createManualTask = async(req, res) =>{
     
         const newTask = new Task({
             title,
-            createdBy : user.firstName,
+            createdBy : user._id,
             creatorEmail : email,
+            creatorName: user.firstName,
             priority,
             status,
             ETA,
@@ -52,7 +53,6 @@ TaskController.createManualTask = async(req, res) =>{
         }); 
         // Save the task to the database
         const savedTask = await newTask.save();
-        console.log("savedTask", savedTask)
         res.status(200).json({
             message: "Task created successfully", 
             task: savedTask

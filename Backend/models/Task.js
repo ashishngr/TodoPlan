@@ -32,6 +32,11 @@ const taskSchema = new Schema(
       required: true,
       trim: true,
     },
+    creatorName : {
+      type: String, 
+      required: true,
+      trim: true,
+    },
     assignees: [
       {
         type: Schema.Types.ObjectId,
