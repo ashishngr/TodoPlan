@@ -67,6 +67,7 @@ const TaskDialog = ({ open, onClose }) => {
       console.log(error)
     }
   }
+  const isSaveDisabled = !title || !etaTime;
 
   return (
     <div>
@@ -246,7 +247,7 @@ const TaskDialog = ({ open, onClose }) => {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button autoFocus onClick={handleCreateManualTask}>Save Task</Button>
+              <Button autoFocus onClick={handleCreateManualTask} disabled={isSaveDisabled}>Save Task</Button>
             </DialogActions>
           </div>
         </div>

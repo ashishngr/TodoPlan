@@ -1,12 +1,14 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { BsThreeDots } from "react-icons/bs";
-import Typography from '@mui/material/Typography';
+import Typography from "@mui/material/Typography";
 import { CiCircleList } from "react-icons/ci";
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
+import LinearProgress, {
+  linearProgressClasses,
+} from "@mui/material/LinearProgress";
+import { styled } from "@mui/material/styles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +20,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MdOutlineInsertComment } from "react-icons/md";
-import Avatar from '@mui/material/Avatar';
-import AvatarGroup from '@mui/material/AvatarGroup';
+import Avatar from "@mui/material/Avatar";
+import AvatarGroup from "@mui/material/AvatarGroup";
 
+import { useRouter } from 'next/navigation';
 
 
 
@@ -29,20 +32,35 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   borderRadius: 5,
   [`&.${linearProgressClasses.colorPrimary}`]: {
     backgroundColor: theme.palette.grey[200],
-    ...theme.applyStyles('dark', {
+    ...theme.applyStyles("dark", {
       backgroundColor: theme.palette.grey[800],
     }),
   },
   [`& .${linearProgressClasses.bar}`]: {
     borderRadius: 5,
-    backgroundColor:theme.palette.grey[800],
-    ...theme.applyStyles('dark', {
+    backgroundColor: theme.palette.grey[800],
+    ...theme.applyStyles("dark", {
       backgroundColor: theme.palette.grey[600],
     }),
   },
 }));
+ 
 
-const TaskCard = () => {
+const TaskCard = ({ task }) => {
+  const totalSubtasks = task?.subtask?.length || 0; // Default to 0 if undefined
+  const completedSubtasks = task?.subtask?.filter((s) => s.status === 'complete').length || 0;
+  // Calculate the progress percentage
+  const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+  const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
+ 
+  const handleEditClick = () => {
+      // Redirect user to the edit task page
+      router.push(`/dashboard/task/${task._id}`);
+    
+  };
+  
+ 
   return (
     <div className="">
       <Card
@@ -82,8 +100,8 @@ const TaskCard = () => {
                 <DropdownMenuLabel>Task Details</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>View Details</DropdownMenuItem>
-                  <DropdownMenuItem>Edit Task</DropdownMenuItem>
+                  <DropdownMenuItem >View Details</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleEditClick}>Edit Task</DropdownMenuItem>
                   <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
                   <DropdownMenuItem>Add Comment</DropdownMenuItem>
                   <DropdownMenuItem>Assign to User</DropdownMenuItem>
@@ -101,40 +119,52 @@ const TaskCard = () => {
         </div>
         {/* Ttitle Section */}
         <div className="flex flex-col flex-wrap mt-1">
-        <Typography variant="subtitle1" gutterBottom>
-          Title of my first task
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        Lorem ipsum dolor sit amet, consectetur adipisicing.
-      </Typography>
+          <Typography variant="h6" gutterBottom>
+            {task.title}
+          </Typography>
+          <Typography variant="subtitle2" gutterBottom>
+            {task.description
+              ? task.description
+              : "No description, Please edit the task and set a description"}
+          </Typography>
         </div>
         {/* Sub Task Section */}
         <div className="m-2 bg-white shadow-sm rounded-md p-2">
-        <div className="flex flex-row justify-between">
+          <div className="flex flex-row justify-between">
             <div className="flex flex-row gap-2 align-baseline">
-              <div><CiCircleList /></div>
+              <div>
+                <CiCircleList />
+              </div>
               <div className="text-sm">Sub Task</div>
-            </div> 
-            <div className="text-sm">
-              16/20
             </div>
-        </div>
-        <div className="mt-2">
-          <BorderLinearProgress variant="determinate" value={50} />
-        </div>
+            <div className="text-sm">
+              {task.subtask && task.subtask.length > 0
+                ? `${
+                    task.subtask.filter((s) => s.status === "complete").length
+                  }/${task.subtask.length}`
+                : "0"}
+            </div>
+          </div>
+          <div className="mt-2">
+            <BorderLinearProgress variant="determinate" value={progressPercentage} />
+          </div>
         </div>
         {/* Card Footer */}
         <div className="flex flex-row justify-between p-2 ">
           {/* comment and link */}
           <div className="flex flex-row bg-white shadow-sm rounded-md p-2 cursor-pointer">
-              <MdOutlineInsertComment />
+            <MdOutlineInsertComment />
           </div>
           {/* Collabration avatars*/}
           <div className="flex bg-white p-1">
-          <AvatarGroup max={2} >
-            <Avatar  sx={{ width: 24, height: 24 }} variant="rounded">A</Avatar>
-            <Avatar  sx={{ width: 24, height: 24 }} variant="rounded">B</Avatar>
-          </AvatarGroup>
+            <AvatarGroup max={2}>
+              <Avatar sx={{ width: 24, height: 24 }} variant="rounded">
+                A
+              </Avatar>
+              <Avatar sx={{ width: 24, height: 24 }} variant="rounded">
+                B
+              </Avatar>
+            </AvatarGroup>
           </div>
         </div>
       </Card>

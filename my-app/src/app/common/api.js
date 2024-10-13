@@ -50,6 +50,9 @@ const API = {
     },
     createManualTask : async(payload) => {
         return axios.post(`${API_BASE_URL}/api/v1/task/manual`, payload, getHeadersWithToken())
+    }, 
+    getAllTask : async() =>{
+        return axios.get(`${API_BASE_URL}/api/v1/task`, getHeadersWithToken());
     }
 
 }
