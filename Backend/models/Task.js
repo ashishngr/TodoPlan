@@ -14,6 +14,49 @@ const subTaskSchema = new Schema({
     required: true,
   },
 });
+// Comment Schema
+const commentSchema = new Schema({
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  authorName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  text: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+// Activity Schema
+const activitySchema = new Schema({
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  updatedByName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+});
 
 const taskSchema = new Schema(
   {
@@ -68,28 +111,6 @@ const taskSchema = new Schema(
       ],
       default: "backlog",
     },
-    subTasks: [subTaskSchema],
-    activity: [
-      {
-        updatedBy: {
-          type: Schema.Types.ObjectId, // Referencing the user who updated the task
-          ref: "User",
-          required: true,
-        },
-        updatedByName: {
-          type: String, // Storing the name of the user who updated
-          required: true,
-        },
-        updatedAt: {
-          type: Date,
-          default: Date.now, 
-        },
-        message: {
-          type: String, 
-          required: true,
-        },
-      },
-    ],
     ETA: {
         type: Number, 
         min: 1, 
@@ -102,6 +123,9 @@ const taskSchema = new Schema(
     deadline: {
       type: Date,
     },
+    subTasks: [subTaskSchema],
+    activity: [activitySchema],
+    comments: [commentSchema],
     description: {
       type: String,
       trim: true,
@@ -133,7 +157,7 @@ const taskSchema = new Schema(
       type: String, // Calendar ID associated with the Google Task
       trim: true,
       default: null,
-    }
+    },
   },
   {
     collection: "task",

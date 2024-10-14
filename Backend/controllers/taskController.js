@@ -26,7 +26,7 @@ TaskController.createManualTask = async(req, res) =>{
         }
         const user = await User.findById(id); 
         if(!user){
-            return ErrorUtils.APIErrorResponse(res, ERRORS.USER_ALREADY_EXIST); 
+            return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
         }
         // Optional field validation
         if (priority && !['Low', 'Medium', 'High', 'Urgent'].includes(priority)) {
@@ -50,6 +50,14 @@ TaskController.createManualTask = async(req, res) =>{
             ETA,
             ETAUnit,
             createdAt: new Date(), // Automatically setting the created date
+            activity: [
+                {
+                    updatedBy: user._id,
+                    updatedByName: user.firstName,
+                    message: "Task created",
+                    updatedAt: new Date(),
+                }
+            ]
         }); 
         // Save the task to the database
         const savedTask = await newTask.save();
@@ -63,6 +71,30 @@ TaskController.createManualTask = async(req, res) =>{
         return ErrorUtils.APIErrorResponse(res);
     }
 }
+TaskController.getSingleManualTask = async(req, res) =>{
+    try {
+        const { taskId } = req.params;
+        const id = req.user.id; 
+        const user = await User.findById(id); 
+        if(!user){
+            return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
+        }
+        const task = await Task.findById(taskId); 
+        if (!task) {
+            return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND); 
+        }
+        console.log("Task ->", task); 
+        res.status(200).json({
+            message: 'Task retrieved successfully',
+            task : task,
+        });
+
+    } catch (error) {
+        console.log(error); 
+        return ErrorUtils.APIErrorResponse(res);
+    }
+}
+
 TaskController.updateTask = async(req, res) =>{
     try {
         const { id } = req.params;
@@ -142,64 +174,55 @@ TaskController.updateTask = async(req, res) =>{
 TaskController.getAllTasks = async(req, res) =>{
     try {
         const id = req.user.id; 
-        const email = req.user.email
+        // const email = req.user.email
         console.log(id)
         const user = await User.findById(id); 
         if(!user){
             return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND)
         }; 
-        let {limit, page, taskId, priority,  status, sortBy, from, to} = req.query; 
-        page = page || 1; 
-        limit = limit || 5; 
-        let skip = (page - 1) * limit;  
-        let query = {creatorEmail : email}
-        if(taskId){
-            query._id = new ObjectId(taskId)
-        }
-        if(priority){
-            query.priority = priority
-        }
-        if(status){
-            query.status = status
-        }
-         // Handle date range for createdAt field
-        const fromDate = from ? new Date(from) : null;
-        const toDate = new Date(new Date(to).setHours(23, 59, 59, 999));
-        if(fromDate && toDate) {
-            query.createdAt = {
-                $gte: fromDate,
-                $lte: toDate
-            };
-        } else if (fromDate) {
-            query.createdAt = { $gte: fromDate };
-        } else if (toDate) {
-            query.createdAt = { $lte: toDate };
-        }
-        const sort = {createdAt: -1};
-        if (sortBy === 'latest') {
-            sort.createdAt = -1; // Sort by latest
-        } else if (sortBy === 'oldest') {
-            sort.createdAt = 1;  // Sort by oldest
-        }
+        // let {limit, page, taskId, priority,  status, sortBy, from, to} = req.query; 
+        // page = page || 1; 
+        // limit = limit || 5; 
+        // let skip = (page - 1) * limit;  
+        let query = {createdBy : user._id}
+        // if(taskId){
+        //     query._id = new ObjectId(taskId)
+        // }
+        // if(priority){
+        //     query.priority = priority
+        // }
+        // if(status){
+        //     query.status = status
+        // }
+        //  // Handle date range for createdAt field
+        // const fromDate = from ? new Date(from) : null;
+        // const toDate = new Date(new Date(to).setHours(23, 59, 59, 999));
+        // if(fromDate && toDate) {
+        //     query.createdAt = {
+        //         $gte: fromDate,
+        //         $lte: toDate
+        //     };
+        // } else if (fromDate) {
+        //     query.createdAt = { $gte: fromDate };
+        // } else if (toDate) {
+        //     query.createdAt = { $lte: toDate };
+        // }
+        // const sort = {createdAt: -1};
+        // if (sortBy === 'latest') {
+        //     sort.createdAt = -1; // Sort by latest
+        // } else if (sortBy === 'oldest') {
+        //     sort.createdAt = 1;  // Sort by oldest
+        // }
         let taskList = await Task.aggregate([
             {
                 $match : query
-            },
-            {
-                $sort : sort
-            },
-            {
-                $skip: skip
-            }, 
-            {
-                $limit: parseInt(limit)
             }
         ])
         const totalCount = await Task.countDocuments(query); 
         const payload = {
             data: taskList, 
             totalTask: totalCount, 
-            currentPage: page 
+            // currentPage: page 
         }
         return res.status(200).json(payload)
     } catch (error) {
