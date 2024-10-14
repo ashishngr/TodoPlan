@@ -20,6 +20,7 @@ import {
   List,
   ListItem,
 } from "@mui/material";
+import API from "@/app/common/api";
 
 const statusColors = {
   backlog: "rgb(255, 213, 79)", // Soft Yellow
@@ -42,6 +43,14 @@ const page = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskStatus, setTaskStatus] = useState("");
+  const [taskPriority, setTaskPriority] = useState("");
+  const [taskETAUnit, setTaskETAUnit] = useState("");
+  const [taskETATime, setTaskETATime] = useState("");
+  const [taskDeadline, setTaskDeadline] = useState(null);
+  const [taskDescription, setTaskDescription] = useState("");
+
   const [activities, setActivities] = useState([
     {
       time: "2024-10-12 14:30",
@@ -92,6 +101,25 @@ const page = () => {
       setComment("");
     }
   };
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const manualTask = await API.getManualTask(taskId);
+        const taskData = manualTask.data.task;
+        setTaskTitle(taskData.title || "");
+        setTaskStatus(taskData.status || "");
+        setTaskPriority(taskData.priority || "");
+        setTaskETAUnit(taskData.ETAUnit || "");
+        setTaskETATime(taskData.ETA || "");
+        setTaskDeadline(taskData.deadline || null);
+        setTaskDescription(taskData.description || "");
+        console.log("Manual task", taskData);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchTask();
+  }, []);
 
   {
     /*
@@ -111,6 +139,7 @@ const page = () => {
       13 comments. []
        */
   }
+
   return (
     <div className="flex flex-col p-4 justify-center items-center">
       <div className="flex flex-col p-4 w-1/2 gap-2 rounded-lg shadow-2xl">
@@ -118,6 +147,8 @@ const page = () => {
           placeholder="Enter the title"
           className="w-full h-16 text-5xl font-bold placeholder-gray-600 focus:outline-none"
           rows="1"
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
         />
         <div className="flex flex-col w-full gap-1">
           <label>Owner</label>
@@ -125,9 +156,9 @@ const page = () => {
             labelId="priority-select-label"
             id="Assignees"
             className="border-b-2 border-gray-300 focus:border-gray-500 h-10"
-            // onChange={handlePriorityChange}
-            // value={priority}
             displayEmpty
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
             renderValue={(selected) =>
               selected ? (
                 <Chip
@@ -175,9 +206,9 @@ const page = () => {
             labelId="status-select-label"
             id="status-select"
             className="border-b-2 border-gray-300 focus:border-gray-500 h-10"
-            // onChange={handleStatusChange}
-            // value={status}
             displayEmpty
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
             renderValue={(selected) =>
               selected ? (
                 <Chip
@@ -243,8 +274,8 @@ const page = () => {
             labelId="priority-select-label"
             id="priority-select"
             className="border-b-2 border-gray-300 focus:border-gray-500 h-10"
-            // onChange={handlePriorityChange}
-            // value={priority}
+            value={taskPriority}
+            onChange={(e) => setTaskPriority(e.target.value)}
             displayEmpty
             renderValue={(selected) =>
               selected ? (
@@ -295,8 +326,8 @@ const page = () => {
               id="eta-select"
               className="border-b-2 border-gray-300 focus:border-gray-500 h-10 text-base max-w-[150px]"
               displayEmpt
-              // value={etaUnit}
-              // onChange={handleEtaUnitChange}
+              value={taskETAUnit}
+              onChange={(e) => setTaskETAUnit(e.target.value)}
             >
               <MenuItem value="minutes">Minutes</MenuItem>
               <MenuItem value="hours">Hours</MenuItem>
@@ -306,6 +337,8 @@ const page = () => {
               placeholder="ETA"
               name="eta"
               className="border-b-2 border-gray-300 focus:border-gray-500 h-10 text-base max-w-[200px]"
+              value={taskETATime}
+              onChange={(e) => setTaskETATime(e.target.value)}
               inputProps={{
                 style: {
                   appearance: "none", // Remove default styling
@@ -322,6 +355,8 @@ const page = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer components={["DatePicker"]}>
                 <DatePicker
+                  value={taskDeadline}
+                  onChange={(date) => setTaskDeadline(date)}
                   label=""
                   sx={{
                     "& .MuiInputBase-root": {
@@ -363,6 +398,8 @@ const page = () => {
           <textarea
             placeholder="Type your task's description....."
             className=" w-full h-16 text-lg border-none  focus:outline-none"
+            value={taskDescription}
+            onChange={(e) => setTaskDescription(e.target.value)}
           />
         </div>
         {/* Sub Tasks */}
@@ -398,13 +435,16 @@ const page = () => {
         </div>
         <Separator className="w-full mt-2" />
 
-        <Box sx={{ width: "100%", 
-          typography: "body1", 
-          bgcolor: 'lightgray', 
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', 
-          p: 2, // Add padding for better appearance
-          borderRadius: 2 // Optional: Adds rounded corners
-          }}>
+        <Box
+          sx={{
+            width: "100%",
+            typography: "body1",
+            bgcolor: "lightgray",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+            p: 2, // Add padding for better appearance
+            borderRadius: 2, // Optional: Adds rounded corners
+          }}
+        >
           <Tabs
             value={activeTab}
             onChange={handleTabChange}

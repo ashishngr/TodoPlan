@@ -53,6 +53,9 @@ const API = {
     }, 
     getAllTask : async() =>{
         return axios.get(`${API_BASE_URL}/api/v1/task`, getHeadersWithToken());
+    }, 
+    getManualTask : async(id) =>{
+        return axios.get(`${API_BASE_URL}/api/v1/task/${id}`, getHeadersWithToken())
     }
 
 }

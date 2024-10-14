@@ -49,8 +49,8 @@ const TaskDialog = ({ open, onClose }) => {
             title,
             status,
             priority,
-            etaUnit,
-            etaTime,
+            ETAUnit: etaUnit,
+            ETA : etaTime,
         };
         const newTask  = await API.createManualTask(payload); 
         if(newTask.status === 200){
