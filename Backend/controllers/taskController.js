@@ -79,7 +79,9 @@ TaskController.getSingleManualTask = async(req, res) =>{
         if(!user){
             return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND); 
         }
-        const task = await Task.findById(taskId); 
+        const task = await Task.findById(taskId)
+        .select('title description assignees priority status subTasks ETA ETAUnit deadline')
+        .populate('assignees', 'name email'); 
         if (!task) {
             return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND); 
         }

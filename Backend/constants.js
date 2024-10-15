@@ -30,5 +30,14 @@ exports.ERRORS = {
     INVITEE_NOT_FOUNT : {
         status : 404, 
         message : "Invitee not found or you don't have permission to delete this invitee"
+    }, 
+    INVITATION_NOT_FOUND : {
+        status : 404, 
+        message : "invitation not found"
+    }, 
+    USER_HAS_NO_INIVITATION : {
+        status : 404, 
+        message : "User has no invitation"
     }
+
 }

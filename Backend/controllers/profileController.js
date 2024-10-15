@@ -109,12 +109,21 @@ ProfileController.senInvitee = async (req, res) => {
     if (invitees) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_ALREADY_EXISTS);
     }
+    const invitedUser = await User.findOne({ email }); 
+    if(!invitedUser){
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+    const fullName = `${user.firstName}${user.lastName}` 
+
     const newInvitee = new Invitee({
       firstName: firstName,
       lastName: lastName,
       email: email,
+      senderName : fullName,
       invitedBy: user._id,
+      invitedUserId : invitedUser._id,
       status: "Pending",
+      expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
     await newInvitee.save();
     return res.status(200).json({
@@ -125,7 +134,115 @@ ProfileController.senInvitee = async (req, res) => {
     return ErrorUtils.APIErrorResponse(res);
   }
 };
+// TODO : CONTROLLER TO RECEIVE INVITATION INFORMATION
+ProfileController.getInvitation = async(req, res) =>{
+  try {
+    const userId = req.user.id; 
+    const user = await User.findById(userId); 
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+    const invitations = await Invitee.find({
+      invitedUserId: user._id, 
+      status: "Pending" 
+    }); 
+    if(!invitations){
+      return res.status(200).json({
+        message : "You do not have any invitations"
+      })
+    }
+    return res.status(200).json({
+      message : "invitations found successfully", 
+      invitations : invitations
+    })
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+}
+// TODO : CONTROLLER TO GET ACCEPTED INVITAION
+ProfileController.getAcceptedInvitations = async(req, res) =>{
+  try {
+    const userId = req.user.id; 
+    const user = await User.findById(userId); 
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+     // Fetch invitations with status "Accepted" for the logged-in user
+     const acceptedInvitations = await Invitee.find({ 
+      invitedUserId: user._id, 
+      status: "Accepted" 
+    }).populate('invitedBy', 'firstName lastName email'); 
 
+    if (!acceptedInvitations || acceptedInvitations.length === 0) {
+      return res.status(200).json({
+        message: "No accepted invitations found",
+      });
+    }
+    return res.status(200).json({
+      message: "Accepted invitations found successfully", 
+      invitations: acceptedInvitations,
+    });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+}
+//TODO : CONTROLLER TO ACCEPT INVITATION
+ProfileController.acceptInvitation = async(req, res) =>{
+  try {
+    const userId = req.user.id;
+    const { invitationId } = req.params; 
+    // Find the invitation by ID
+    const invitee = await Invitee.findById(invitationId); 
+    if (!invitee) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITATION_NOT_FOUND);
+    }
+    if (invitee.invitedUserId.toString() !== userId) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.USER_HAS_NO_INIVITATION);
+    }
+    // Update the invitation status to "Accepted"
+    invitee.status = "Accepted";
+    invitee.statusLog.push({ status: "Accepted" });
+    await invitee.save();
+    return res.status(200).json({
+      message: "Invitation accepted successfully.",
+      invitee,
+    });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+}
+
+//TODO : CONTROLLER TO REJECT INVITATION
+ProfileController.rejectInvitation = async(req, res) =>{
+  try {
+    const { invitationId } = req.params;
+    const userId = req.user.id; 
+    // Find the invitation by ID
+    const invitee = await Invitee.findById(invitationId);
+    if (!invitee) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.INVITATION_NOT_FOUND);
+    }
+    // Check if the user rejecting is the invited user
+    if (invitee.invitedUserId.toString() !== userId) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.USER_HAS_NO_INIVITATION);
+    }
+    // Update the invitation status to "Rejected"
+    invitee.status = "Rejected";
+    invitee.statusLog.push({ status: "Rejected" });
+
+    await invitee.save();
+    return res.status(200).json({
+      message: "Invitation rejected successfully.",
+      invitee,
+    });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+}
 //TODO : CONTROLLER TO GET ALL INVITEE
 ProfileController.getAllInvitees = async (req, res) => {
   try {

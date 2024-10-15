@@ -13,4 +13,8 @@ router.post("/sendInvitaion", validateToken, ProfileController.senInvitee);
 router.get("/invitees", validateToken, ProfileController.getAllInvitees); 
 router.get("/invitees/status", validateToken, ProfileController.getInviteesByStatus)
 router.put("/invitees/:id", validateToken, ProfileController.DeleteInvitee);
+router.get("/invitations", validateToken, ProfileController.getInvitation);
+router.post("/invitation/:invitationId/accept", validateToken, ProfileController.acceptInvitation); 
+router.post("/invitation/:invitationId/reject", validateToken, ProfileController.rejectInvitation);
+router.get("/accepted-invitations", validateToken, ProfileController.getAcceptedInvitations);
 module.exports = router

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
+const { types } = require("util");
 const {Schema} = mongoose; 
 
 const inviteeSchema = new Schema(
@@ -16,7 +18,6 @@ const inviteeSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
     },
     status: {
       type: String,
@@ -41,6 +42,14 @@ const inviteeSchema = new Schema(
       ref: "User",
       required: true,
     },
+    senderName: {
+      type: String, 
+    },
+    invitedUserId : {
+      type : Schema.Types.ObjectId, 
+      ref: "User", 
+      required : true
+    },
     task: {
       type: Schema.Types.ObjectId,
       ref: "Task", // Reference to the task the invitee is associated with
@@ -50,6 +59,10 @@ const inviteeSchema = new Schema(
       type: String,
       enum: ["Invitee", "Assignee"], // Role can be updated later
       default: "Invitee",
+    },
+    expirationDate: {
+      type: Date,
+      required: false, // Optional field to set when the invitation expires
     },
   },
   {
