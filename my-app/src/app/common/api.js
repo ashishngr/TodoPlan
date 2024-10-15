@@ -56,7 +56,18 @@ const API = {
     }, 
     getManualTask : async(id) =>{
         return axios.get(`${API_BASE_URL}/api/v1/task/${id}`, getHeadersWithToken())
+    }, 
+    getInvitations : async() =>{
+        return axios.get(`${API_BASE_URL}/api/v1/invitations`, getHeadersWithToken());
+    },
+    acceptInvitation : async(invitationId, payload) =>{
+        return axios.post(`${API_BASE_URL}/api/v1/invitation/${invitationId}/accept`, payload, getHeadersWithToken())
+    }, 
+    rejectInvitation : async(invitationId, payload) =>{
+        return axios.post(`${API_BASE_URL}/api/v1/${invitationId}/reject`, payload, getHeadersWithToken())
+    },
+    getAcceptedInvitations : async () =>{
+        return axios.get(`${API_BASE_URL}/api/v1/accepted-invitations`, getHeadersWithToken());
     }
-
 }
 export default API; 
