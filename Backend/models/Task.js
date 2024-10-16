@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
 const { Schema } = mongoose;
 
 const subTaskSchema = new Schema({
@@ -158,6 +159,16 @@ const taskSchema = new Schema(
       trim: true,
       default: null,
     },
+    tag :{
+      type : [String], 
+      validate: {
+        validator: function (v) {
+          return Array.isArray(v) && v.every(tag => typeof tag === "string");
+        },
+        message: props => `${props.value} is not a valid tag array!`
+      },
+      default: [],
+    }
   },
   {
     collection: "task",

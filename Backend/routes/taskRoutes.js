@@ -7,7 +7,7 @@ const AdminAuthHelper = require("../helpers/AuthHelper")
 let validateToken = AdminAuthHelper.validateToken; 
 
 router.post("/task/manual", validateToken, TaskController.createManualTask); 
-router.put("/task/:id", validateToken, TaskController.updateTask); 
+router.put("/manualTask/:id", validateToken, TaskController.updateTaskBasicInformation); 
 router.get("/task", validateToken, TaskController.getAllTasks)
 router.get("/task/:taskId", validateToken, TaskController.getSingleManualTask)
 
