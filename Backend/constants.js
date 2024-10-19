@@ -38,6 +38,10 @@ exports.ERRORS = {
     USER_HAS_NO_INIVITATION : {
         status : 404, 
         message : "User has no invitation"
+    }, 
+    INVALID_SUTASK_STATUS :{
+        status : 400, 
+        message : "Invalid subtask status value"
     }
 
 }

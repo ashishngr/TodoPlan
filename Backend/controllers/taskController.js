@@ -23,6 +23,7 @@ TaskController.createManualTask = async (req, res) => {
       return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
     const user = await User.findById(id);
+
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
@@ -46,12 +47,11 @@ TaskController.createManualTask = async (req, res) => {
       return res.status(400).json({ message: "Invalid status value" });
     }
     if (ETAUnit && !["minutes", "hours"].includes(ETAUnit)) {
-      return res
-        .status(400)
-        .json({
-          message: 'Invalid ETA unit. It must be either "minutes" or "hours".',
-        });
+      return res.status(400).json({
+        message: 'Invalid ETA unit. It must be either "minutes" or "hours".',
+      });
     }
+    console.log("User----------------", user);
 
     const newTask = new Task({
       title,
@@ -114,7 +114,9 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.user.id;
-    console.log(userId);
+    console.log("--------------------------------", userId);
+    console.log("--------------------------------Id", id);
+
     const {
       title,
       priority,
@@ -124,6 +126,7 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
       deadline,
       description,
       tags,
+      assignees,
     } = req.body;
 
     if (Object.keys(req.body).length === 0) {
@@ -154,20 +157,16 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
     }
 
     if (ETA !== undefined && (typeof ETA !== "number" || ETA < 0)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Invalid ETA value. It must be a non-negative number representing duration in minutes.",
-        });
+      return res.status(400).json({
+        message:
+          "Invalid ETA value. It must be a non-negative number representing duration in minutes.",
+      });
     }
 
     if (ETAUnit && !["minutes", "hours"].includes(ETAUnit)) {
-      return res
-        .status(400)
-        .json({
-          message: 'Invalid ETA unit. It must be either "minutes" or "hours".',
-        });
+      return res.status(400).json({
+        message: 'Invalid ETA unit. It must be either "minutes" or "hours".',
+      });
     }
 
     const user = await User.findOne(userId);
@@ -185,7 +184,9 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
     if (deadline) updateFields.deadline = deadline;
     if (description) updateFields.description = description;
     if (tags) updateFields.tags = tags;
-
+    if (assignees && Array.isArray(assignees)) {
+      updateFields.assignees = assignees;
+    }
 
     const updatedTask = await Task.findByIdAndUpdate(
       id,
@@ -197,18 +198,106 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
     }
     // Log activity for the update
     const activityLog = {
-        updatedBy: user._id,
-        updatedByName: user.name,
-        updatedAt: new Date(),
-        message: `Task updated with new information: ${Object.keys(updateFields).join(", ")}.`,
+      updatedBy: user._id,
+      updatedByName: user.name,
+      updatedAt: new Date(),
+      message: `Task updated with new information: ${Object.keys(
+        updateFields
+      ).join(", ")}.`,
     };
     updatedTask.activity.push(activityLog);
     await updatedTask.save(); // Save the task with the new activity log
 
-
     res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
+    });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+};
+
+TaskController.addSubTask = async (req, res) => {
+  try {
+    const { userId } = req.user.id;
+    const { taskId } = req.params;
+    const subtasks = req.body;
+    if (!Array.isArray(subtasks) || subtasks.length === 0) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
+    }
+
+    const user = await User.findOne(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+
+    const validStatuses = ["complete", "backlog"];
+    for (const subtask of subtasks) {
+      const { title, status } = subtask;
+      if (!title || !validStatuses.includes(status)) {
+        return ErrorUtils.APIErrorResponse(res, ERRORS.INVALID_SUBTASK_STATUS);
+      }
+    }
+
+    // const updatedTask = await Task.findByIdAndUpdate(
+    //   taskId,
+    //   {
+    //     $push: {
+    //       subTasks: { $each: subtasks }, // Add each subtask to the array
+    //     },
+    //   },
+    //   { new: true, runValidators: true }
+    // )
+    // if (!updatedTask) {
+    //   return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
+    // }
+    // Find the task to update
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
+    }
+
+    // Update the task with new subtasks
+    subtasks.forEach((subtask) => task.subTasks.push(subtask));
+    // Log activity for each subtask addition
+    const activityLog = {
+      updatedBy: user._id,
+      updatedByName: user.name,
+      updatedAt: new Date(),
+      message: `Added ${subtasks.length} new subtask(s): ${subtasks
+        .map((st) => st.title)
+        .join(", ")}.`,
+    };
+    task.activity.push(activityLog);
+
+    // Save the updated task
+    await task.save();
+
+    res.status(200).json({
+      message: "Subtask added successfully",
+      task: task,
+    });
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+};
+TaskController.getSubTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { userId } = req.user.id;
+    const user = await User.findOne(userId);
+    if (!user) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
+    }
+    const task = await Task.findById(taskId).select("subTasks");
+    if (!task) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
+    }
+    res.status(200).json({
+      message: "Task fetched successfully",
+      task: task,
     });
   } catch (error) {
     console.log(error);
@@ -269,6 +358,36 @@ TaskController.getAllTasks = async (req, res) => {
       // currentPage: page
     };
     return res.status(200).json(payload);
+  } catch (error) {
+    console.log(error);
+    return ErrorUtils.APIErrorResponse(res);
+  }
+};
+TaskController.deleteSubTask = async (req, res) => {
+  try {
+    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&")
+    const { taskId, subTaskId } = req.params;
+    console.log("Sub task Id", subTaskId)
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const subTaskIndex = task.subTasks.findIndex(
+      (subTask) => subTask._id.toString() === subTaskId
+    );
+    if (subTaskIndex === -1) {
+      return res.status(404).json({ message: "Subtask not found" });
+    }
+    const deletedSubTask = task.subTasks.splice(subTaskIndex, 1);
+    const activityLog = {
+      updatedBy: req.user._id, // Assuming you have user info from authentication middleware
+      updatedByName: req.user.name,
+      updatedAt: new Date(),
+      message: `Subtask "${deletedSubTask[0].title}" was deleted.`,
+    };
+    task.activity.push(activityLog);
+    await task.save(); 
+    return res.status(200).json({ message: 'Subtask deleted successfully', task });
   } catch (error) {
     console.log(error);
     return ErrorUtils.APIErrorResponse(res);

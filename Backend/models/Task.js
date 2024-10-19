@@ -5,14 +5,12 @@ const { Schema } = mongoose;
 const subTaskSchema = new Schema({
   title: {
     type: String,
-    required: true,
     trim: true,
   },
   status: {
     type: String,
     enum: ["complete", "backlog"],
     default: "backlog", // Default status for sub-tasks
-    required: true,
   },
 });
 // Comment Schema
@@ -42,11 +40,9 @@ const activitySchema = new Schema({
   updatedBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   updatedByName: {
     type: String,
-    required: true,
     trim: true,
   },
   updatedAt: {
@@ -55,7 +51,6 @@ const activitySchema = new Schema({
   },
   message: {
     type: String,
-    required: true,
   },
 });
 
@@ -83,9 +78,7 @@ const taskSchema = new Schema(
     },
     assignees: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "Invitee", // Invitees who are assigned to the task
-        validate: [arrayLimit, '{PATH} exceeds the limit of 10']
+        type: String, 
       },
     ],
     invitees: [
@@ -186,7 +179,3 @@ const Task = mongoose.model("Task", taskSchema);
 module.exports = {
   Task,
 };
-
-function arrayLimit(val) {
-    return val.length <= 10;
-}
