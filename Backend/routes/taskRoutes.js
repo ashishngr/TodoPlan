@@ -13,5 +13,9 @@ router.get("/task", validateToken, TaskController.getAllTasks)
 router.get("/task/:taskId", validateToken, TaskController.getSingleManualTask); 
 router.get("/subtask/:taskId", validateToken, TaskController.getSubTask)
 router.delete("/task/:taskId/subTask/:subTaskId", validateToken, TaskController.deleteSubTask);
+router.put("/task/:taskId/subTask/:subTaskId/status", validateToken, TaskController.updateSubTaskStatus); 
+router.get("/activity/:taskId", validateToken, TaskController.getActivityData); 
+router.post("/task/:taskId/comment", validateToken, TaskController.addComments);
+router.get("/task/:taskId/comment", validateToken, TaskController.getComments); 
 
 module.exports = router

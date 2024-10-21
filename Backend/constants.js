@@ -24,24 +24,28 @@ exports.ERRORS = {
         message : "Incorrect password"
     }, 
     INVITEE_ALREADY_EXISTS : {
-        status : 400, 
+        status_code : 400, 
         message : "Invitee already exists"
     }, 
     INVITEE_NOT_FOUNT : {
-        status : 404, 
+        status_code : 404, 
         message : "Invitee not found or you don't have permission to delete this invitee"
     }, 
     INVITATION_NOT_FOUND : {
-        status : 404, 
+        status_code : 404, 
         message : "invitation not found"
     }, 
     USER_HAS_NO_INIVITATION : {
-        status : 404, 
+        status_code : 404, 
         message : "User has no invitation"
     }, 
     INVALID_SUTASK_STATUS :{
-        status : 400, 
+        status_code : 400, 
         message : "Invalid subtask status value"
+    }, 
+    NO_SUBTASK_FOUND : {
+        status_code : 404, 
+        message : "Subtask not found"
     }
 
 }
