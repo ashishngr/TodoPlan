@@ -3,14 +3,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Typography from "@mui/material/Typography";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, MenuItem, Chip } from "@mui/material";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { IoIosAddCircleOutline } from "react-icons/io";
-import { Separator } from "@/components/ui/separator";
 import {
   Tabs,
   Tab,
@@ -20,7 +17,11 @@ import {
   List,
   ListItem,
 } from "@mui/material";
+import Avatar from '@mui/material/Avatar';
+import dayjs from "dayjs";
+import SubTask from "@/app/components/SubTask";
 import API from "@/app/common/api";
+import { formatDate } from "@/utility/validateDateFormat";
 
 const statusColors = {
   backlog: "rgb(255, 213, 79)", // Soft Yellow
@@ -37,52 +38,39 @@ const priorityColors = {
   High: "#FF8C42", // Orange
   Urgent: "#FF5C5C", // Red
 };
+const colors = [
+  "#3f51b5", // Indigo
+  "#ff5722", // Deep Orange
+  "#4caf50", // Green
+  "#ff9800", // Orange
+  "#9c27b0", // Purple
+  "#009688", // Teal
+  "#795548", // Brown
+  "#e91e63", // Pink
+];
 
 const page = () => {
   const [subTasks, setSubTasks] = useState([""]);
-  const [activeTab, setActiveTab] = useState(0);
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskStatus, setTaskStatus] = useState("");
   const [taskPriority, setTaskPriority] = useState("");
   const [taskETAUnit, setTaskETAUnit] = useState("");
   const [taskETATime, setTaskETATime] = useState("");
-  const [taskDeadline, setTaskDeadline] = useState(null);
+  const [taskDeadline, setTaskDeadline] = useState(dayjs());
   const [taskDescription, setTaskDescription] = useState("");
+  const [selectedAssignees, setSelectedAssignees] = useState([]);
+  const [assignees, setAssignees] = useState([]);
 
-  const [activities, setActivities] = useState([
-    {
-      time: "2024-10-12 14:30",
-      user: "John Doe",
-      update: "Task title changed",
-    },
-    {
-      time: "2024-10-11 09:15",
-      user: "Jane Smith",
-      update: "Added a new subtask",
-    },
-  ]);
+  const [activeTab, setActiveTab] = useState(0);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+
+  const [activities, setActivities] = useState([]);
   const inputRefs = useRef([]);
-
   const params = useParams();
   const taskId = params.taskId;
   console.log("Task Id", taskId);
 
-  const handleAddSubTask = () => {
-    setSubTasks([...subTasks, ""]);
-  };
-  const handleInputChange = (index, value) => {
-    const updatedSubTasks = [...subTasks];
-    updatedSubTasks[index] = value;
-    setSubTasks(updatedSubTasks);
-  };
-  const handleKeyPress = (e, index) => {
-    if (e.key === "Enter" && subTasks[index].trim() !== "") {
-      e.preventDefault();
-      handleAddSubTask();
-    }
-  };
   useEffect(() => {
     // Focus on the latest input field when a new input is added
     if (inputRefs.current.length > 0) {
@@ -92,33 +80,82 @@ const page = () => {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
-  const handleAddComment = () => {
-    if (comment.trim() !== "") {
-      setComments([
-        ...comments,
-        { text: comment, time: new Date().toLocaleString() },
+  const fetchComments = async () => {
+    try {
+      const getCommentsResponse = await API.getComments(taskId);
+      console.log("getCommentsResponse", getCommentsResponse);
+      const data = getCommentsResponse?.data.comments;
+      setComments(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchComments();
+  }, [taskId]);
+
+  const handleAddComment = async () => {
+    if (comment.trim() === "") return;
+    try {
+      const payload = { text: comment };
+      const addCommentResponse = await API.addComment(taskId, payload);
+      console.log("add comment response##############", addCommentResponse);
+      setComments((prevComments) => [
+        ...prevComments,
+        addCommentResponse.data.comment,
       ]);
       setComment("");
+      fetchComments();
+    } catch (error) {
+      console.log(error);
     }
   };
   useEffect(() => {
     const fetchTask = async () => {
       try {
         const manualTask = await API.getManualTask(taskId);
-        const taskData = manualTask.data.task;
+        const taskData = manualTask?.data.task;
         setTaskTitle(taskData.title || "");
         setTaskStatus(taskData.status || "");
         setTaskPriority(taskData.priority || "");
         setTaskETAUnit(taskData.ETAUnit || "");
         setTaskETATime(taskData.ETA || "");
-        setTaskDeadline(taskData.deadline || null);
+        setTaskDeadline(dayjs(taskData.deadline));
         setTaskDescription(taskData.description || "");
+        setSelectedAssignees(taskData.assignees || []);
         console.log("Manual task", taskData);
       } catch (error) {
         console.log(error);
       }
     };
     fetchTask();
+  }, []);
+
+  useEffect(() => {
+    const fetchActivity = async () => {
+      try {
+        const activityResponse = await API.getAtivityData(taskId);
+        console.log("Activity^^^^^^^^^^^^^^", activityResponse?.data.activity);
+        setActivities(activityResponse?.data.activity);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchActivity();
+  }, []);
+
+  useEffect(() => {
+    const fetchAssignees = async () => {
+      try {
+        const assignee = await API.getInvitees();
+        const data = assignee?.data.invitees;
+        console.log("assignees------------", data);
+        setAssignees(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchAssignees();
   }, []);
 
   {
@@ -139,67 +176,92 @@ const page = () => {
       13 comments. []
        */
   }
+  const handleAssigneeChange = (event) => {
+    setSelectedAssignees(event.target.value);
+  };
+
+  // Save task basic information
+  const handleSave = async () => {
+    try {
+      const payload = {
+        title: taskTitle,
+        status: taskStatus,
+        priority: taskPriority,
+        description: taskDescription,
+        assignees: selectedAssignees,
+        ETA: Number(taskETATime),
+        ETAUnit: taskETAUnit,
+        deadline: taskDeadline,
+      };
+
+      await API.updateManualTaskBasicInfo(taskId, payload);
+      console.log("Task updated successfully");
+    } catch (error) {
+      console.log("Error updating task:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col p-4 justify-center items-center">
-      <div className="flex flex-col p-4 w-1/2 gap-2 rounded-lg shadow-2xl">
+      <div className="flex flex-row justify-center items-center gap-4 m-2 bg-black text-white w-full p-2 rounded-lg shadow-md font-bold">
+        <div className="text-xl text-bold">EDIT TASK</div>
+      </div>
+      <div className="flex flex-col p-4  gap-2 rounded-lg w-[90%] bg-gray-50 shadow-md">
+        {/* ============================================================================================================================ */}
         <textarea
           placeholder="Enter the title"
-          className="w-full h-16 text-5xl font-bold placeholder-gray-600 focus:outline-none"
+          className="w-full h-16 text-5xl font-bold bg-gray-50 placeholder-gray-600 focus:outline-none"
           rows="1"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
         />
+        {/* ============================================================================================================================ */}
         <div className="flex flex-col w-full gap-1">
-          <label>Owner</label>
+          <label htmlFor="assignees-multi-select">Assignees</label>
           <Select
-            labelId="priority-select-label"
-            id="Assignees"
+            labelId="assignee-multi-select-label"
+            id="assignees-multi-select"
             className="border-b-2 border-gray-300 focus:border-gray-500 h-10"
             displayEmpty
-            value={taskStatus}
-            onChange={(e) => setTaskStatus(e.target.value)}
-            renderValue={(selected) =>
-              selected ? (
-                <Chip
-                  label={selected}
-                  style={{
-                    backgroundColor: priorityColors[selected],
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                />
-              ) : (
-                "Assignees"
-              )
-            }
+            multiple
+            value={selectedAssignees}
+            onChange={handleAssigneeChange}
+            renderValue={(selected) => {
+              if (selected.length === 0) {
+                return <em style={{ color: "#888" }}>Select Assignees</em>;
+              }
+              return (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value, index) => (
+                    <Chip
+                      key={value}
+                      label={value}
+                      style={{
+                        backgroundColor: colors[index % colors.length], // Use dynamic color
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    />
+                  ))}
+                </Box>
+              );
+            }}
           >
-            <MenuItem
-              value="Low"
-              style={{ backgroundColor: priorityColors.Low }}
-            >
-              Low
+            <MenuItem disabled value="">
+              <em>Select Assignees</em>
             </MenuItem>
-            <MenuItem
-              value="Medium"
-              style={{ backgroundColor: priorityColors.Medium }}
-            >
-              Medium
-            </MenuItem>
-            <MenuItem
-              value="High"
-              style={{ backgroundColor: priorityColors.High }}
-            >
-              High
-            </MenuItem>
-            <MenuItem
-              value="Urgent"
-              style={{ backgroundColor: priorityColors.Urgent }}
-            >
-              Urgent
-            </MenuItem>
+            {assignees.map((assignee) => (
+              <MenuItem
+                key={assignee._id}
+                value={`${assignee.firstName} ${assignee.lastName}`}
+              >
+                {assignee.firstName} {assignee.lastName} ({assignee.email})
+              </MenuItem>
+            ))}
           </Select>
         </div>
+        {/* ============================================================================================================================ */}
+
         <div className="flex flex-col w-full gap-1">
           <label>Status</label>
           <Select
@@ -268,6 +330,7 @@ const page = () => {
             </MenuItem>
           </Select>
         </div>
+        {/* ============================================================================================================================ */}
         <div className="flex flex-col w-full gap-1">
           <label>Priority</label>
           <Select
@@ -318,6 +381,8 @@ const page = () => {
             </MenuItem>
           </Select>
         </div>
+        {/* ============================================================================================================================ */}
+
         <div className="flex flex-row justify-between align-center">
           <div className="flex flex-row gap-2">
             <label className="mr-2">ETA </label>
@@ -356,6 +421,7 @@ const page = () => {
               <DemoContainer components={["DatePicker"]}>
                 <DatePicker
                   value={taskDeadline}
+                  //
                   onChange={(date) => setTaskDeadline(date)}
                   label=""
                   sx={{
@@ -393,53 +459,36 @@ const page = () => {
             </LocalizationProvider>
           </div>
         </div>
-        <Separator className="w-full mt-2" />
+        {/* ============================================================================================================================ */}
         <div className="mt-4 p-4">
           <textarea
             placeholder="Type your task's description....."
-            className=" w-full h-16 text-lg border-none  focus:outline-none"
+            className=" w-full h-16 text-lg border-2 border-gray-600 p-4 rounded-lg focus:outline-none"
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
           />
         </div>
-        {/* Sub Tasks */}
-        <div className="min-h-[250px]">
-          <Typography variant="h6" className="mb-1">
-            Add SubTasks
-          </Typography>
-          {/* <div className="flex flex-row gap-1">
-            <span className="text-lg">1.</span> <input className="w-full text-lg font-bold border-b-2 focus:outline-none"/> <span className="p-2 cursor-pointer bg-gray-200 rounded-full"><IoIosAddCircleOutline size={22}/></span>
-          </div> */}
-          {subTasks.map((subTask, index) => (
-            <div key={index} className="flex flex-row gap-1 items-center mb-2">
-              <span className="text-lg">{index + 1}.</span>
-              <input
-                className="w-full text-lg font-bold border-b-2 focus:outline-none"
-                value={subTask}
-                ref={(el) => (inputRefs.current[index] = el)}
-                onChange={(e) => handleInputChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyPress(e, index)}
-              />
-              {index === subTasks.length - 1 && (
-                <span
-                  className={`p-2 cursor-pointer bg-gray-200 rounded-full ${
-                    subTask.trim() === "" ? "cursor-not-allowed opacity-50" : ""
-                  }`}
-                  onClick={() => subTask.trim() !== "" && handleAddSubTask()}
-                >
-                  <IoIosAddCircleOutline size={22} />
-                </span>
-              )}
-            </div>
-          ))}
+
+        <div className="flex  align-center justify-center">
+          <sapn
+            className="bg-black text-white p-2 w-1/3 text-center rounded-xl cursor-pointer "
+            onClick={handleSave}
+          >
+            SAVE INFORMATION
+          </sapn>
         </div>
-        <Separator className="w-full mt-2" />
+        {/* ============================================================================================================================ */}
+
+        {/* Sub Tasks */}
+        <SubTask taskId={taskId} />
+
+        {/* ============================================================================================================================ */}
 
         <Box
           sx={{
             width: "100%",
             typography: "body1",
-            bgcolor: "lightgray",
+            bgcolor: "#e3f2fd",
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
             p: 2, // Add padding for better appearance
             borderRadius: 2, // Optional: Adds rounded corners
@@ -455,7 +504,7 @@ const page = () => {
           </Tabs>
 
           {activeTab === 0 && (
-            <Box sx={{ p: 2 }}>
+            <Box  sx={{ p: 2, maxHeight: "200px", overflowY: "auto" }}>
               <Typography variant="h6">Comments</Typography>
               <TextField
                 fullWidth
@@ -475,10 +524,47 @@ const page = () => {
               </Button>
               <List>
                 {comments.map((c, index) => (
-                  <ListItem key={index}>
-                    <Typography variant="body2">
-                      {c.text} - <i>{c.time}</i>
-                    </Typography>
+                  <ListItem
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      mb: 2,
+                    }}
+                  >
+                    {/* First Row: Avatar and Comment */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
+                        {c.authorName.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Typography variant="body1" sx={{ flexGrow: 1 }}>
+                        {c.text}
+                      </Typography>
+                    </Box>
+
+                    {/* Second Row: Author Name and Time */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        mt: 1,
+                      }}
+                    >
+                      <Typography variant="body2" color="textSecondary">
+                        {c.authorName}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {formatDate(c.createdAt).toLocaleString()}
+                      </Typography>
+                    </Box>
                   </ListItem>
                 ))}
               </List>
@@ -486,17 +572,20 @@ const page = () => {
           )}
 
           {activeTab === 1 && (
-            <Box sx={{ p: 2 }}>
+            <Box sx={{ p: 2, maxHeight: "200px", overflowY: "auto" }}>
               <Typography variant="h6">Activity</Typography>
               <List>
-                {activities.map((activity, index) => (
-                  <ListItem key={index}>
-                    <Typography variant="body2">
-                      <b>{activity.user}</b> updated: "{activity.update}" at{" "}
-                      <i>{activity.time}</i>
-                    </Typography>
-                  </ListItem>
-                ))}
+                {activities
+                  .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)) // Sort by latest activity
+                  .map((activity, index) => (
+                    <ListItem key={index}>
+                      <Typography variant="body2">
+                        <b>{activity.updatedByName || "Unknown User"}</b>{" "}
+                        updated: "{activity.message}" at{" "}
+                        <i>{formatDate(activity.updatedAt)}</i>
+                      </Typography>
+                    </ListItem>
+                  ))}
               </List>
             </Box>
           )}

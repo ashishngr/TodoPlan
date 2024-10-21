@@ -401,7 +401,7 @@ export default function Profile() {
                 </div>
               </div>
             ) : (
-              <div className="text-center text-gray-500">
+              <div className="text-center text-gray-700 bg-gray-100 p-4 rounded-md text-xl shadow-sm">
                 No invitations available.
               </div>
             )}
