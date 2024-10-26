@@ -161,7 +161,11 @@ const taskSchema = new Schema(
         message: props => `${props.value} is not a valid tag array!`
       },
       default: [],
-    }
+    }, 
+    createdAtDate: {
+      type: String,
+      required: true,
+    },
   },
   {
     collection: "task",
@@ -174,6 +178,13 @@ const taskSchema = new Schema(
 taskSchema.index({ createdBy: 1 });
 taskSchema.index({ status: 1 });
 taskSchema.index({ priority: 1 });
+
+taskSchema.pre("save", function (next) {
+  if (this.isNew) {
+    this.createdAtDate = new Date().toISOString().split("T")[0]; // Sets date in 'YYYY-MM-DD' format
+  }
+  next();
+});
 
 const Task = mongoose.model("Task", taskSchema);
 module.exports = {

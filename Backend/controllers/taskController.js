@@ -51,8 +51,9 @@ TaskController.createManualTask = async (req, res) => {
         message: 'Invalid ETA unit. It must be either "minutes" or "hours".',
       });
     }
-    console.log("User----------------", user);
 
+    const createdAt = new Date();
+    const createdAtDate = createdAt.toISOString().split("T")[0];
     const newTask = new Task({
       title,
       createdBy: user._id,
@@ -62,7 +63,8 @@ TaskController.createManualTask = async (req, res) => {
       status,
       ETA,
       ETAUnit,
-      createdAt: new Date(), // Automatically setting the created date
+      createdAt: new Date(), // Automatically setting the created date,
+      createdAtDate,
       activity: [
         {
           updatedBy: user._id,
@@ -199,7 +201,7 @@ TaskController.updateTaskBasicInformation = async (req, res) => {
     // Log activity for the update
     const activityLog = {
       updatedBy: user._id,
-      updatedByName:  `${user.firstName} ${user.lastName}`,
+      updatedByName: `${user.firstName} ${user.lastName}`,
       updatedAt: new Date(),
       message: `Task updated with new information: ${Object.keys(
         updateFields
@@ -237,20 +239,6 @@ TaskController.addSubTask = async (req, res) => {
         return ErrorUtils.APIErrorResponse(res, ERRORS.INVALID_SUBTASK_STATUS);
       }
     }
-
-    // const updatedTask = await Task.findByIdAndUpdate(
-    //   taskId,
-    //   {
-    //     $push: {
-    //       subTasks: { $each: subtasks }, // Add each subtask to the array
-    //     },
-    //   },
-    //   { new: true, runValidators: true }
-    // )
-    // if (!updatedTask) {
-    //   return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
-    // }
-    // Find the task to update
     const task = await Task.findById(taskId);
     if (!task) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
@@ -261,7 +249,7 @@ TaskController.addSubTask = async (req, res) => {
     // Log activity for each subtask addition
     const activityLog = {
       updatedBy: user._id,
-      updatedByName:  `${user.firstName} ${user.lastName}`,
+      updatedByName: `${user.firstName} ${user.lastName}`,
       updatedAt: new Date(),
       message: `Added ${subtasks.length} new subtask(s): ${subtasks
         .map((st) => st.title)
@@ -311,39 +299,8 @@ TaskController.getAllTasks = async (req, res) => {
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    // let {limit, page, taskId, priority,  status, sortBy, from, to} = req.query;
-    // page = page || 1;
-    // limit = limit || 5;
-    // let skip = (page - 1) * limit;
+
     let query = { createdBy: user._id };
-    // if(taskId){
-    //     query._id = new ObjectId(taskId)
-    // }
-    // if(priority){
-    //     query.priority = priority
-    // }
-    // if(status){
-    //     query.status = status
-    // }
-    //  // Handle date range for createdAt field
-    // const fromDate = from ? new Date(from) : null;
-    // const toDate = new Date(new Date(to).setHours(23, 59, 59, 999));
-    // if(fromDate && toDate) {
-    //     query.createdAt = {
-    //         $gte: fromDate,
-    //         $lte: toDate
-    //     };
-    // } else if (fromDate) {
-    //     query.createdAt = { $gte: fromDate };
-    // } else if (toDate) {
-    //     query.createdAt = { $lte: toDate };
-    // }
-    // const sort = {createdAt: -1};
-    // if (sortBy === 'latest') {
-    //     sort.createdAt = -1; // Sort by latest
-    // } else if (sortBy === 'oldest') {
-    //     sort.createdAt = 1;  // Sort by oldest
-    // }
     let taskList = await Task.aggregate([
       {
         $match: query,
@@ -384,7 +341,7 @@ TaskController.deleteSubTask = async (req, res) => {
     const deletedSubTask = task.subTasks.splice(subTaskIndex, 1);
     const activityLog = {
       updatedBy: req.user._id, // Assuming you have user info from authentication middleware
-      updatedByName:  `${user.firstName} ${user.lastName}`,
+      updatedByName: `${user.firstName} ${user.lastName}`,
       updatedAt: new Date(),
       message: `Subtask "${deletedSubTask[0].title}" was deleted.`,
     };
@@ -472,7 +429,7 @@ TaskController.updateSubTaskStatus = async (req, res) => {
     // Create an activity log for the update
     const activityLog = {
       updatedBy: req.user._id, // Assuming you have user info from authentication middleware
-      updatedByName:  `${user.firstName} ${user.lastName}` ,
+      updatedByName: `${user.firstName} ${user.lastName}`,
       updatedAt: new Date(),
       message: `Subtask "${task.subTasks[subTaskIndex].title}" status updated to "${status}".`,
     };
@@ -508,53 +465,54 @@ TaskController.getActivityData = async (req, res) => {
     return ErrorUtils.APIErrorResponse(res);
   }
 };
-TaskController.addComments = async(req, res) =>{
+TaskController.addComments = async (req, res) => {
   try {
-    const {taskId} = req.params
+    const { taskId } = req.params;
     const { text } = req.body;
-    const userId = req.user.id; 
+    const userId = req.user.id;
     const user = await User.findById(userId);
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    if(!text){
+    if (!text) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
-    const task = await Task.findById(taskId)
-    if(!task){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND); 
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
     }
     const newComment = {
       author: user._id,
-      authorName:  `${user.firstName} ${user.lastName}`,
+      authorName: `${user.firstName} ${user.lastName}`,
       text,
     };
     task.comments.push(newComment);
     await task.save();
     return res.status(200).json({
-
-      message : "omment added successfully", 
-      comment : newComment
-    })
+      message: "omment added successfully",
+      comment: newComment,
+    });
   } catch (error) {
     console.log(error);
     return ErrorUtils.APIErrorResponse(res);
   }
 };
-TaskController.getComments = async(req, res) =>{
+TaskController.getComments = async (req, res) => {
   try {
-    const {taskId} = req.params; 
-    const userId = req.user.id; 
+    const { taskId } = req.params;
+    const userId = req.user.id;
     const user = await User.findById(userId);
     if (!user) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.NO_USER_FOUND);
     }
-    const task = await Task.findById(taskId)
-    if(!task){
-      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND); 
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return ErrorUtils.APIErrorResponse(res, ERRORS.NO_TASK_FOUND);
     }
-    const sortedComments = task.comments.sort((a, b) => b.createdAt - a.createdAt); 
-    
+    const sortedComments = task.comments.sort(
+      (a, b) => b.createdAt - a.createdAt
+    );
+
     return res.status(200).json({
       success: true,
       comments: sortedComments.map((comment) => ({
@@ -569,4 +527,4 @@ TaskController.getComments = async(req, res) =>{
     console.log(error);
     return ErrorUtils.APIErrorResponse(res);
   }
-}
+};
