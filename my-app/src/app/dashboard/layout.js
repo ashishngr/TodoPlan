@@ -23,6 +23,7 @@ import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import UpgradeOutlinedIcon from '@mui/icons-material/UpgradeOutlined';
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined'; 
 import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 import {
   Tooltip,
@@ -40,6 +41,7 @@ export default function Layout({ children }) {
   const sidebarItems = [
     { label: "Home", icon: <OtherHousesOutlinedIcon size={25} />, link: "/dashboard/home" },
     { label: "Task", icon: <TaskAltOutlinedIcon size={25} />, link: "/dashboard/task" },
+    { label: "Calendar", icon: <CalendarMonthIcon size={25} />, link: "/dashboard/calendar" },
     { label: "Completed", icon: <BeenhereOutlinedIcon size={25} />, link: "/dashboard/completeTask" },
     { label: "Archived", icon: <ArchiveOutlinedIcon size={25} />, link: "/dashboard/archivedTask" },
     // { label: "Upgrade", icon: <UpgradeOutlinedIcon size={25} />, link: "/dashboard/upgradeUser" },

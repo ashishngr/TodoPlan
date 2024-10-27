@@ -66,8 +66,13 @@ const TaskCard = ({ task }) => {
       <Card
         sx={{
           backgroundColor: "#f5f5f5",
-          maxWidth: "350px",
-          padding: "8px",
+          width: "350px",
+          minHeight: "300px",
+          padding: "16px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          boxShadow: 3,
         }}
       >
         <div className="flex flex-row justify-between align-middle">
