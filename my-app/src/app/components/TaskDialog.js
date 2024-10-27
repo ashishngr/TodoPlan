@@ -77,7 +77,7 @@ const TaskDialog = ({ open, onClose }) => {
           <div className="relative bg-white w-1/2 rounded-lg shadow-xl">
             <div className="flex items-center justify-between border-b p-4 border-gray-200 pb-2">
               {/* Dialog Title */}
-              <h2 className="text-lg font-semibold">TASK</h2>
+              <h2 className="text-lg font-semibold">ADD TASK</h2>
 
               {/* Close Button */}
               <IconButton

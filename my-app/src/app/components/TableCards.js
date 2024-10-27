@@ -7,112 +7,123 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"; 
-import { ScrollArea } from "@/components/ui/scroll-area"
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-
-import { Separator } from "@/components/ui/separator"; 
+import { Separator } from "@/components/ui/separator";
 
 const invoices = [
-    {
-      id: "1",
-      title: "Task title 1",
-      creator: "A"
-    
-    },
-    {
-        id: "1",
-        title: "Task title 1",
-        creator: "A"
-      
-    },
-    {
-        id: "1",
-        title: "Task title 1",
-        creator: "A"
-      
-      },
-      {
-          id: "1",
-          title: "Task title 1",
-          creator: "A"
-        
-      },
-      {
-        id: "1",
-        title: "Task title 1",
-        creator: "A"
-      
-      },
-      {
-          id: "1",
-          title: "Task title 1",
-          creator: "A"
-        
-      },
-      {
-        id: "1",
-        title: "Task title 1",
-        creator: "A"
-      
-      },
-      {
-          id: "1",
-          title: "Task title 1",
-          creator: "A"
-        
-      },
-    
-]
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+  {
+    id: "1",
+    title: "Task title 1",
+    creator: "A",
+  },
+];
 
-
-const TableCards = ({title, number, description}) => {
+const TableCards = ({ tableTitle, number, description, tasks = [] }) => {
+  console.log("tasks------", tasks);
   return (
-    <Card className="w-[350px] h-[350px]">
-      <CardHeader className="p-2">  {/* Reduce padding here */}
-        <CardTitle className="flex items-center">
-            <span className="bg-gray-100 p-2 rounded-full w-8 h-8 inline-flex items-center justify-center">
+    <Card className="w-[400px] h-[400px] shadow-lg border rounded-lg">
+      <CardHeader className="p-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-t-lg">
+        <CardTitle className="flex items-center text-white">
+          <span className="bg-white p-2 rounded-full w-10 h-10 inline-flex items-center justify-center text-indigo-500 font-semibold">
             {number}
-            </span>
-            <span className="ml-2">{title}</span>
+          </span>
+          <span className="ml-3 font-semibold text-lg">{tableTitle}</span>
         </CardTitle>
-        </CardHeader>
-      <Separator className="" />
-      <CardContent className="max-h-[240px] overflow-y-auto">
-        <Table >
-            <TableHeader>
-                <TableRow>
-                <TableHead className="w-[100px]">S.No</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Creator</TableHead>
+      </CardHeader>
+      <Separator />
+      <CardContent className="max-h-[260px] overflow-y-auto bg-gray-50 p-3 rounded-b-lg">
+        <Table className="w-full">
+          <TableHeader>
+            <TableRow className="bg-gray-200 text-gray-700 font-semibold">
+              <TableHead className="py-2 text-center">S.No</TableHead>
+              <TableHead className="py-2 text-center">Title</TableHead>
+              <TableHead className="py-2 text-center">Creator</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tasks.length > 0 ? (
+              tasks.map((task, index) => (
+                <TableRow
+                  key={task.id}
+                  className={`${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                  } hover:bg-indigo-50 transition-all duration-150`}
+                >
+                  <TableCell className="py-2 text-center font-medium">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="py-2 text-center">
+                    {task.title}
+                  </TableCell>
+                  <TableCell className="py-2 text-center">
+                    <div className="flex justify-center items-center w-10 h-10 bg-indigo-200 rounded-full text-indigo-600 font-semibold">
+                      {task.creatorName
+                        ? task.creatorName.charAt(0).toUpperCase()
+                        : "?"}
+                    </div>
+                  </TableCell>
                 </TableRow>
-            </TableHeader>
-            
-                <TableBody>
-                    {invoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                        <TableCell className="font-medium">{invoice.id}</TableCell>
-                        <TableCell>{invoice.title}</TableCell>
-                        <TableCell>
-                        <div className="flex justify-center items-center w-10 h-10 bg-gray-200 rounded-full">
-                            {invoice.creator}
-                        </div>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>  
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={3}
+                  className="text-center text-gray-500 py-4"
+                >
+                  No tasks found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
         </Table>
       </CardContent>
-      <Separator className="" />
-      <CardFooter className="flex justify-center p-2 text-md font-bold">
+      <Separator />
+      <CardFooter className="flex justify-center p-3 text-gray-600 bg-gray-50 font-medium rounded-b-lg">
         {description}
       </CardFooter>
     </Card>

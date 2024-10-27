@@ -171,6 +171,9 @@ const API = {
       getHeadersWithToken()
     );
   },
+  getUserHomePageInfo : async() =>{
+    return await axios.get(`${API_BASE_URL}/api/v1/userInfo`, getHeadersWithToken());
+  }
 };
 
 export default API;

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
@@ -23,9 +23,7 @@ import { MdOutlineInsertComment } from "react-icons/md";
 import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
 
-import { useRouter } from 'next/navigation';
-
-
+import { useRouter } from "next/navigation";
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -44,133 +42,108 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     }),
   },
 }));
- 
 
 const TaskCard = ({ task }) => {
   const totalSubtasks = task?.subtask?.length || 0; // Default to 0 if undefined
-  const completedSubtasks = task?.subtask?.filter((s) => s.status === 'complete').length || 0;
+  const completedSubtasks =
+    task?.subtask?.filter((s) => s.status === "complete").length || 0;
   // Calculate the progress percentage
-  const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+  const progressPercentage =
+    totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
- 
+
   const handleEditClick = () => {
-      // Redirect user to the edit task page
-      router.push(`/dashboard/task/${task._id}`);
-    
+    // Redirect user to the edit task page
+    router.push(`/dashboard/task/${task._id}`);
   };
-  
- 
+
   return (
-    <div className="">
+    <div>
       <Card
         sx={{
-          backgroundColor: "#f5f5f5",
-          width: "350px",
-          minHeight: "300px",
-          padding: "16px",
+          backgroundColor: "#fff",
+          width: "360px",
+          minHeight: "320px",
+          padding: "20px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
           display: "flex",
           flexDirection: "column",
+          gap: "12px",
           justifyContent: "space-between",
-          boxShadow: 3,
         }}
       >
-        <div className="flex flex-row justify-between align-middle">
+        <div className="flex justify-between items-center">
           <Stack direction="row" spacing={1}>
             <Chip
-              label="Chip Filled"
-              sx={{
-                backgroundColor: "black",
-                color: "white", // Text color to contrast with black background
-              }}
+              label="High Priority"
               size="small"
+              sx={{ backgroundColor: "#f44336", color: "white" }}
             />
             <Chip
-              label="Chip Outlined"
-              sx={{
-                backgroundColor: "black",
-                color: "white", // Text color to contrast with black background
-              }}
+              label="Due Soon"
               size="small"
+              sx={{ backgroundColor: "#ff9800", color: "white" }}
             />
           </Stack>
-          <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
-                  <BsThreeDots size={22} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-50">
-                <DropdownMenuLabel>Task Details</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem >View Details</DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleEditClick}>Edit Task</DropdownMenuItem>
-                  <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
-                  <DropdownMenuItem>Add Comment</DropdownMenuItem>
-                  <DropdownMenuItem>Assign to User</DropdownMenuItem>
-                  <DropdownMenuItem>Duplicate Task</DropdownMenuItem>
-                  <DropdownMenuItem>Share Task</DropdownMenuItem>
-                  <DropdownMenuItem>Add to Calendar</DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600 hover:text-red-800">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="p-1">
+                <BsThreeDots size={22} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Task Options</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={handleEditClick}>
+                  Edit Task
+                </DropdownMenuItem>
+                <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
+                <DropdownMenuItem>Add Comment</DropdownMenuItem>
+                <DropdownMenuItem>Duplicate Task</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">
                   Delete
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {/* Ttitle Section */}
-        <div className="flex flex-col flex-wrap mt-1">
-          <Typography variant="h6" gutterBottom>
+
+        <div className="mt-2">
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
             {task.title}
           </Typography>
-          <Typography variant="subtitle2" gutterBottom>
-            {task.description
-              ? task.description
-              : "No description, Please edit the task and set a description"}
+          <Typography variant="body2" color="text.secondary">
+            {task.description || "No description provided"}
           </Typography>
         </div>
-        {/* Sub Task Section */}
-        <div className="m-2 bg-white shadow-sm rounded-md p-2">
-          <div className="flex flex-row justify-between">
-            <div className="flex flex-row gap-2 align-baseline">
-              <div>
-                <CiCircleList />
-              </div>
-              <div className="text-sm">Sub Task</div>
+
+        <div className="bg-gray-100 p-2 rounded-lg shadow-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <CiCircleList size={18} />
+              <Typography variant="body2">Subtasks</Typography>
             </div>
-            <div className="text-sm">
-              {task.subtask && task.subtask.length > 0
-                ? `${
-                    task.subtask.filter((s) => s.status === "complete").length
-                  }/${task.subtask.length}`
-                : "0"}
-            </div>
+            <Typography variant="body2">{`${completedSubtasks}/${totalSubtasks}`}</Typography>
           </div>
-          <div className="mt-2">
-            <BorderLinearProgress variant="determinate" value={progressPercentage} />
-          </div>
+          <BorderLinearProgress
+            variant="determinate"
+            value={progressPercentage}
+            sx={{ mt: 1 }}
+          />
         </div>
-        {/* Card Footer */}
-        <div className="flex flex-row justify-between p-2 ">
-          {/* comment and link */}
-          <div className="flex flex-row bg-white shadow-sm rounded-md p-2 cursor-pointer">
-            <MdOutlineInsertComment />
-          </div>
-          {/* Collabration avatars*/}
-          <div className="flex bg-white p-1">
-            <AvatarGroup max={2}>
-              <Avatar sx={{ width: 24, height: 24 }} variant="rounded">
-                A
-              </Avatar>
-              <Avatar sx={{ width: 24, height: 24 }} variant="rounded">
-                B
-              </Avatar>
-            </AvatarGroup>
-          </div>
+
+        <div className="flex justify-between items-center mt-2">
+          <Button variant="outlined" size="small" className="flex items-center">
+            <MdOutlineInsertComment size={20} className="mr-1" /> Comment
+          </Button>
+          <AvatarGroup max={3}>
+            <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>B</Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>C</Avatar>
+          </AvatarGroup>
         </div>
       </Card>
     </div>
