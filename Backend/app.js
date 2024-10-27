@@ -22,6 +22,7 @@ mongoose.connect(mongoUri, {serverSelectionTimeoutMS: 5000})
 const authRoutes = require("./routes/authRoutes"); 
 const taskRoutes = require("./routes/taskRoutes"); 
 const profileRoute = require("./routes/profileRoutes"); 
+const userRoutes = require("./routes/userRoutes"); 
 
 //Use Routes
 app.use(cors()); 
@@ -29,8 +30,9 @@ app.use(bodyParser.json());
 app.use(cookieParser());  
 
 app.use("/api/v1", authRoutes);
-app.use("/api/v1", taskRoutes)
-app.use("/api/v1", profileRoute)
+app.use("/api/v1", taskRoutes);
+app.use("/api/v1", profileRoute);
+app.use("/api/v1", userRoutes);
 
 app.listen(PORT,()=> console.log("Server is running on port : " + PORT)); 
 
