@@ -96,6 +96,8 @@ ProfileController.senInvitee = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
     const userId = req.user.id;
+    let invitedBy = userId;
+
     if (!firstName || !lastName || !email) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.GENERIC_BAD_REQUEST);
     }
@@ -105,7 +107,7 @@ ProfileController.senInvitee = async (req, res) => {
     }
 
     // Check if invitee already exists
-    const invitees = await Invitee.findOne({ email });
+    const invitees = await Invitee.findOne({ invitedBy });
     if (invitees) {
       return ErrorUtils.APIErrorResponse(res, ERRORS.INVITEE_ALREADY_EXISTS);
     }

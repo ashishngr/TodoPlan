@@ -293,6 +293,8 @@ TaskController.getSubTask = async (req, res) => {
 TaskController.getAllTasks = async (req, res) => {
   try {
     const id = req.user.id;
+    const {taskType} = req.query; 
+    console.log("TaskType", taskType); 
     // const email = req.user.email
     console.log(id);
     const user = await User.findById(id);
@@ -301,11 +303,17 @@ TaskController.getAllTasks = async (req, res) => {
     }
 
     let query = { createdBy: user._id };
-    let taskList = await Task.aggregate([
-      {
-        $match: query,
-      },
-    ]);
+    let pipeline = [
+      { $match: query } // First, match tasks created by this user
+    ];
+    if (taskType) {
+      pipeline.push({
+        $match: { taskType } // Match only tasks with the specified taskType
+      });
+    }
+    pipeline.push({ $sort: { createdAt: -1 } }); 
+
+    let taskList = await Task.aggregate(pipeline);
     const totalCount = await Task.countDocuments(query);
     const payload = {
       data: taskList,

@@ -12,9 +12,7 @@ const mongoUri = process.env.DATABASE;
 mongoose.set("strictQuery", false); 
 mongoose.connect(mongoUri, {serverSelectionTimeoutMS: 5000})
 .then(()=>{
-     console.log("MongoDB Database connected")
-    }).catch((error)=>{
-        console.error('Error connecting to MongoDB:', error);
+    c
 }); 
 
 //Import Routes 
