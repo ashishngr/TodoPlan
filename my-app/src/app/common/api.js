@@ -22,6 +22,7 @@ const API = {
   signup: async (payload) => {
     return await axios.post(`${API_BASE_URL}/api/v1/signup`, payload);
   },
+  
   createTask: async (payload) => {
     console.log("Payload");
     return await axios.post(
@@ -84,8 +85,10 @@ const API = {
       getHeadersWithToken()
     );
   },
-  getAllTask: async () => {
-    return axios.get(`${API_BASE_URL}/api/v1/task`, getHeadersWithToken());
+  getAllTask: async (params) => {
+    const taskType = params.params.taskType
+    console.log("^^^^^^^^^^^^^^^^^^", taskType)
+    return axios.get(`${API_BASE_URL}/api/v1/task?taskType=${taskType}`, getHeadersWithToken());
   },
   getManualTask: async (id) => {
     return axios.get(
